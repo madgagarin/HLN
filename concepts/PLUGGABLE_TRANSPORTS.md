@@ -1,5 +1,8 @@
 # Pluggable Transport Layer
 
+> [!NOTE]
+> This document is informative (non-normative). In case of conflict, normative specifications in `spec/` take precedence.
+
 ## Objective
 To completely decouple the logical RXON protocol (Message Exchange) from the physical transport layer (Network). This allows the same Orchestrator logic to communicate with Workers via HTTP, WebSocket, Tor, gRPC, or even Carrier Pigeons, simply by switching a configuration driver.
 

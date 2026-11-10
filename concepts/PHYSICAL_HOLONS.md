@@ -1,22 +1,25 @@
 # Physical Holons: Bridging Logic and Matter (IoT & Hardware)
 
+> [!NOTE]
+> This document is informative (non-normative). In case of conflict, normative specifications in `spec/` take precedence.
+
 The HLN architecture is not limited to software agents or LLMs. By design, it is an ideal framework for the **Internet of Agents (IoA)**, where physical devices (sensors, controllers, machines) are treated as first-class citizens of the Holarchy.
 
 ## 1. Security: The Pull-Model Advantage
 Traditional IoT often suffers from security vulnerabilities due to open inbound ports or reliance on centralized brokers. HLN solves this:
 *   **Stealth Mode**: A Physical Holon (e.g., a smart camera or an industrial sensor) operates entirely behind NAT or firewalls. It initiates the **RXON** connection to its Orchestrator.
 *   **No Public IP**: The device has no listening ports. It is invisible to external scanners.
-*   **Mutual Trust**: Using mTLS, the hardware device and the Orchestrator verify each other's identity before any command is exchanged.
+*   **Mutual Trust**: Using mTLS and certificate identity binding, the hardware device and the Orchestrator verify each other's identity before any command is exchanged.
 
 ## 2. Sensors as Reactive Triggers
 In a **Reactive HLN**, a sensor is more than just a data point—it is a logical event source.
 *   **Event-Driven Intent**: Instead of the Orchestrator constantly polling a temperature sensor, the sensor (Physical Holon) sends a worker event (e.g., `overheat_detected`) only when a threshold is reached.
 *   **Signaling & Bubbling**: This physical signal "bubbles up" through the Holarchy. A local "Matryoshka" (Edge Gateway) might handle the event by shutting down a motor, or it might bubble the event to a global Apex Orchestrator for site-wide evacuation.
 
-## 3. Edge Holarchies (Matryoshka Gateways)
+## 3. Edge Holarchies (Matryoshka Gateways) & Bounded Autonomy
 Complexity at the "Edge" is managed via **Shell-Stacking**:
 *   **The Edge Gateway**: A local industrial PC runs an Orchestrator (Compound Ghost) encased in a Shell.
-*   **Local Sovereignty**: This Gateway manages a cluster of Physical Holons (PLCs, sensors, robots) locally. It ensures low-latency control and continues to operate even if the connection to the cloud (Apex) is lost.
+*   **Local Sovereignty & Bounded Autonomy**: This Gateway manages a cluster of Physical Holons (PLCs, sensors, robots) locally. Under the protocol's `orphan_policy: "continue_bounded"`, physical safety loops continue execution within a pre-negotiated `autonomy_ttl_s` window during upstream link severance, followed by a deterministic reconciliation handshake upon cloud reconnection.
 *   **Global Abstraction**: To the Cloud Orchestrator, the entire factory floor looks like a single **Compound Holon** with skills like `produce_unit` or `perform_maintenance`.
 
 ## 4. Unified Orchestration

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/resources.schema.json",
+  "title": "Resources",
+  "description": "Represents the static capacity and hardware assets of a Holon Shell.",
+  "type": "object",
+  "properties": {
+    "cpu_cores": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of available logical CPU cores."
+    },
+    "ram_gb": {
+      "type": "number",
+      "minimum": 0.1,
+      "description": "System RAM in Gigabytes."
+    },
+    "max_concurrent_tasks": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum concurrent tasks this Holon can process."
+    },
+    "devices": {
+      "type": "array",
+      "items": {
+        "$ref": "hardware_device.schema.json"
+      },
+      "description": "List of dedicated hardware accelerators."
+    },
+    "properties": {
+      "type": "object",
+      "description": "Universal dictionary for resource matching.",
+      "properties": {
+        "cpu_cores": { "type": "integer", "minimum": 1 },
+        "ram_gb": { "type": "number", "minimum": 0.1 },
+        "region": { "type": "string" },
+        "location": { "type": "string" },
+        "os": { "type": "string" },
+        "arch": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

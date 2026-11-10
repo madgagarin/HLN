@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/task_error.schema.json",
+  "title": "TaskError",
+  "description": "Structured error details reported when a task does not succeed.",
+  "type": "object",
+  "required": ["code", "message"],
+  "properties": {
+    "code": {
+      "type": "string",
+      "enum": [
+        "TRANSIENT_ERROR",
+        "PERMANENT_ERROR",
+        "INVALID_INPUT_ERROR",
+        "SECURITY_ERROR",
+        "TIMEOUT_ERROR",
+        "RESOURCE_EXHAUSTED_ERROR",
+        "CONTRACT_VIOLATION_ERROR",
+        "DEPENDENCY_ERROR",
+        "DEPENDENCY_MISSING_ERROR",
+        "INTERNAL_ERROR"
+      ],
+      "description": "Standardized machine-readable error code."
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable failure explanation."
+    },
+    "details": {
+      "type": "object",
+      "description": "Optional diagnostic parameters, traces, or field validation errors.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

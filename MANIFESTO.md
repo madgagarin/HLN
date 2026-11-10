@@ -1,63 +1,72 @@
 # The HLN Manifesto: Taming the Chaos
 
-## The Problem: The Unmanageable "Chaos" of Multi-Agent Systems
+## The Problem: Deterministic Orchestration vs Unconstrained Emergence
 
-Modern multi-agent AI systems (A2A, MCP) represent a "marketplace." Agents are autonomous, communicate peer-to-peer, and their behavior is emergent. This is "magic" that works great for creative discovery, but it is a nightmare for business reliability.
-**Chaotic systems (A2A) are impossible to:**
+Modern multi-agent AI systems frequently adopt unstructured, peer-to-peer "agent marketplaces" or unconstrained conversational loops. While emergent, exploratory agent interaction is valuable for creative synthesis, enterprise business processes require mathematical predictability, fault isolation, and verifiable auditability.
 
-* **Guarantee:** You cannot assure the process will finish correctly.
-* **Control:** You don't know what stage the task is at right now.
-* **Debug:** You can't find the cause of a failure in a swarm of thousands of messages.
+**Unconstrained, unstructured peer-to-peer agent systems exhibit critical failure modes:**
 
-No serious business can build a critical process on technology that works on a "maybe, somehow" basis.
+* **Non-guaranteed Termination:** Autonomous self-calling loops cannot guarantee completion within bounded execution and budget limits.
+* **Opaque Observability:** In an unstructured mesh of thousands of peer messages, isolating the root cause of a logic failure or security violation is computationally intractable.
+* **Unbounded Blast Radius:** Prompt injection or error in one node cascades transitively across the entire unpartitioned network.
 
-## The Solution: From "Chaos" to "Holarchy"
+Enterprise operations cannot depend on probabilistic "maybe, somehow" outcomes. Rather than discarding agents, we must provide an engineering architecture that bridges non-deterministic reasoning with deterministic control.
 
-**HLN (Holarchical Logic Network)** represents a fundamental paradigm shift. We replace the "chaotic swarm" with a structured **Holarchy** (a hierarchy of autonomous units).
+## The Solution: Static Decomposition Over Probabilistic Executors
 
-Instead of fragile "Agent-to-Agent" talk, we use the **Ghost-in-the-Shell** pattern:
-1. **The Ghost (The "Mind"):** Your logic, AI model, or even a human expert.
-2. **The Shell (The "Body"):** A standardized, secure interface that handles all connections.
+**HLN (Holarchical Logic Network)** establishes an intentional architectural division: **deterministic FSM decomposition (HTN Control Plane) governing non-deterministic probabilistic executors (Ghost)**.
 
-By combining them into a **Holon**, we create a building block that is always predictable, no matter how complex its "Ghost" is.
+Instead of unconstrained peer-to-peer interaction, HLN enforces the **Ghost-in-the-Shell** pattern:
+1. **The Ghost (The "Mind"):** The internal logic — an LLM prompt, a deterministic script, a physical robotic controller, or a human expert.
+2. **The Shell (The "Body"):** A standardized, strictly typed network interface that connects the Ghost to the Grid using the **RXON** protocol.
+
+By pairing Ghost and Shell into a **Holon**, we create an autonomous unit that is predictable and contractually verifiable, regardless of the internal complexity of its Ghost.
 
 ## Synergy: Fractal Scalability (Matryoshka)
 
-HLN is not just a framework; it is a way to build infinitely complex systems from simple blocks.
-With **Shell-Stacking**, you can "wrap" a whole cluster of Holons into one new Shell. To the outside world, this entire cluster looks like a single, simple specialist.
+HLN enables building **arbitrary scalable complex systems (bounded by `max_holarchy_depth`, default: 10)** from modular building blocks.
+With **Shell-Stacking**, an entire cluster or sub-orchestrator can be encased inside a single Shell. To the superior orchestrator, this complex sub-system appears as a standard single specialist.
 
 This is the **Matryoshka principle**:
-*   A simple script can be a Holon.
-*   A complex Orchestrator managing 1000 scripts can be a Holon.
-*   A global network of Orchestrators can be a Holon.
+* A simple script can be an Atomic Holon.
+* A complex Orchestrator managing 1,000 workers can be encased in a Shell as a Compound Holon.
+* A distributed grid of regional Orchestrators can be coordinated under a root Apex Orchestrator.
 
-**HLN is the framework for taming chaos.** We provide:
-1.  **Predictability**: Strict state machines ensure the process follows the plan.
-2.  **Reactive Intent**: Signals (**worker events**) "bubble up" through layers until they find a level of intelligence capable of processing them.
-3.  **Fractal Control**: Stopping a top-level goal instantly stops all nested sub-processes, saving compute power.
+**HLN delivers structural guarantees:**
+1. **Predictability**: Strict finite state machines (Blueprints) ensure the execution follows an auditable, pre-compiled plan.
+2. **Reactive Intent**: Signals (**worker events**) bubble up through the holarchy until they reach an orchestrator level capable of handling them (inspired by Stafford Beer's cybernetic algedonic channels).
+3. **Fractal Control**: **Bounded-latency cooperative cancellation** is propagated across nested holons via heartbeat and poll directives, terminating orphaned sub-processes and conserving compute.
 
-## Security: Zero Trust in a Fractal World
+## Security: Multi-Profile Zero Trust in a Fractal World
 
-Chaos is not just about lack of control; it is about lack of **trust**. In a multi-agent marketplace, an agent can be spoofed.
-HLN implements **Zero Trust as a Core Standard**:
+In an agent network, identity and authorization cannot rely on implicit network-perimeter trust. HLN implements **Zero Trust as a Core Standard** across two distinct conformance profiles:
 
-1.  **Identity Chain**: Every signal carries an immutable record of its origin and every intermediate Holon it passed through. We don't trust the sender; we verify the entire path.
-2.  **Security Context**: Tasks and results are cryptographically bound to their creators via HMAC SHA256 signatures.
+1. **Verifiable Provenance Chain**: Every bubbled event carries an append-only provenance chain (`provenance_chain`). Under Profile L2, asymmetric Ed25519 signatures and certificate identity binding ensure cryptographic non-repudiation and external anchoring; under Profile L1, chained HMAC provides tamper-noticing validation.
+2. **Envelope Security Context**: Tasks and results are cryptographically bound to their target workers and origin orchestrators, preventing task injection, replay attacks, parameter tampering, and skill spoofing.
+3. **Constrained Autonomy**: Protocol-enforced `Policy` whitelists and monotonic attenuation guarantee that sub-agents can never elevate their privileges or exceed allocated budgets.
 
 ## Efficiency: Smart Resource Lifecycle
 
-HLN treats resources as first-class citizens:
+HLN treats compute and domain expertise as first-class resources:
 
-1. **Universal Matching**: We don't hardcode hardware. We match "Intent" to "Reality". If a task needs "24GB of memory", the system ensures it goes only to a Holon that actually has it — whether it's an AI model, a physical robot, or a human expert.
-2. **Warm-Start Optimization**: By knowing the internal state of nested Holons, the system avoids "Cold Starts", routing tasks to nodes that already have the necessary data or models loaded.
+1. **Universal Directional Matching**: Intent is mapped to capability without hardcoded hardware bindings. Resource matching evaluates capacity via directional semantics (minimum compute requirements for CPU/RAM/VRAM, maximum thresholds for price/latency, and strict superset checking for skill capabilities).
+2. **Warm-Start Optimization**: By tracking worker state affinity and hot skills via lightweight heartbeats, the system avoids cold starts by routing tasks to nodes that already maintain warm model weights or cached data contexts.
 
 ## The Unified Frontier: AI, Matter, and Humanity
 
-HLN is the first architecture that treats **AI Agents**, **Physical Hardware** (IoT, Robotics), and **Living Humans** as identical logical units.
+HLN is an architecture that treats **AI Agents**, **Physical Hardware** (IoT, Robotics, PLCs), and **Living Humans** as contractually uniform logical units.
 
 Through **Shell-Stacking**:
-1.  **AI Agents** provide scalable, low-cost automation.
-2.  **Physical Devices** provide interaction with the material world.
-3.  **Human Experts** provide high-level intuition, ethics, and specialized knowledge.
+1. **AI Agents** provide scalable, low-cost analytical automation.
+2. **Physical Devices** provide sensor telemetry and actuation in the material world.
+3. **Human Experts** provide high-level governance, ethical discretion, and domain expertise.
 
-A software "Ghost" can control physical matter, while a human "Ghost" can supervise a cluster of AI agents, all within the same predictable and secure Holarchical Logic Network. We unify digital, physical, and biological intelligence into a single, orchestrated "nervous system."
+A software Ghost can coordinate physical hardware, while a human supervisor can govern a recursive cluster of AI agents — all within the same auditable Holarchical Logic Network.
+
+---
+
+## Lineage and Prior Art
+
+HLN builds upon established foundations in cybernetics, systems theory, and distributed computing, including Arthur Koestler's holon theory (*The Ghost in the Machine*, 1967), the PROSA (1998) and ADACOR (2006) holonic manufacturing architectures, Stafford Beer's Viable System Model algedonic channels (1972), Erlang/OTP supervision trees (1996), and modern decider/worker pull-queue architectures (Temporal, AWS SWF). 
+
+For a complete academic and industrial review of our theoretical lineage and the specific architectural delta introduced by HLN, see [Prior Art & Architectural Delta](docs/PRIOR_ART.md).

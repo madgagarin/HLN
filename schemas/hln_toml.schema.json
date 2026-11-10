@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/hln_toml.schema.json",
+  "title": "HlnToml",
+  "description": "Validation schema for hln.toml project manifest files",
+  "type": "object",
+  "required": ["holon", "contract"],
+  "properties": {
+    "holon": {
+      "type": "object",
+      "required": ["kind", "name", "version"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["skill", "blueprint"] },
+        "name": { "type": "string", "pattern": "^[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)?$", "maxLength": 192 },
+        "version": { "type": "string" },
+        "description": { "type": "string" },
+        "mode": { "type": "string", "enum": ["portable", "blackbox"] },
+        "runtime": { "type": "string" },
+        "orchestrator": { "type": "string" },
+        "driver": { "type": "string" },
+        "entrypoint": { "type": "string" },
+        "env_lock": { "type": "string" }
+      }
+    },
+    "contract": {
+      "type": "object",
+      "required": ["input_schema", "output_schema"],
+      "properties": {
+        "input_schema": { "type": "string" },
+        "output_schema": { "type": "string" },
+        "risk_level": { "type": "string", "enum": ["low", "medium", "high"] }
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "required_secrets": { "type": "array", "items": { "type": "string" } },
+        "required_env": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "cpu_cores": { "type": "number", "minimum": 0 },
+        "min_ram_mb": { "type": "integer", "minimum": 0 },
+        "min_vram_mb": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["digest", "size_bytes", "mount_path"],
+        "properties": {
+          "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "size_bytes": { "type": "integer", "minimum": 0 },
+          "mount_path": { "type": "string" }
+        }
+      }
+    },
+    "topology": {
+      "type": "object",
+      "properties": {
+        "groups": { "type": "object" },
+        "external": { "type": "object" }
+      }
+    }
+  }
+}

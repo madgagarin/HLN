@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/heartbeat.schema.json",
+  "title": "HeartbeatPayload",
+  "description": "Periodic heartbeat transmitted by a Worker to maintain connection and lease state.",
+  "type": "object",
+  "required": ["worker_id", "status"],
+  "properties": {
+    "worker_id": {
+      "type": "string",
+      "description": "Identifier of the worker sending the heartbeat."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "idle", "busy", "draining"],
+      "description": "Current operational status."
+    },
+    "usage": {
+      "$ref": "resources_usage.schema.json"
+    },
+    "current_tasks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Task IDs currently in progress (renews task leases)."
+    },
+    "available_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Dynamically ready skills."
+    },
+    "hot_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "In-memory cached / warm skills."
+    },
+    "available_credits": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Available capacity credits for credit-based backpressure."
+    },
+    "envelope_ts": {
+      "type": "integer",
+      "description": "Envelope dispatch timestamp (ms)."
+    },
+    "nonce": {
+      "type": "string",
+      "description": "Nonce for replay protection."
+    },
+    "security": {
+      "$ref": "security_context.schema.json"
+    },
+    "mounted_manifests": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of manifest digests currently mounted on the worker."
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,7 +1,26 @@
-Copyright (c) 2025-2026 Dmitrii Gagarin (aka madgagarin)
+Copyright (c) 2025-2026 Dmitry Gagarin (aka madgagarin)
 
-Attribution 4.0 International
+=======================================================================
+HLN DUAL LICENSING NOTICE
+=======================================================================
 
+The HLN project is distributed under a dual-licensing model:
+
+1. PROSE SPECIFICATION & DOCUMENTATION:
+   All prose specification files (spec/*.md, docs/*.md,
+   concepts/*.md, MANIFESTO.md, README.md, SECURITY.md) are licensed under
+   the Creative Commons Attribution 4.0 International Public License (CC BY 4.0),
+   the text of which is set forth below.
+
+2. MACHINE-READABLE SCHEMAS & IMPLEMENTATION CODE:
+   All machine-readable artifacts, including JSON Schemas (schemas/*.json),
+   OpenAPI definitions (api/openapi.yaml), test vectors (conformance/test-vectors/*),
+   reference implementations, and code snippets are licensed under the
+   Apache License, Version 2.0. See the accompanying LICENSE-CODE file or
+   visit http://www.apache.org/licenses/LICENSE-2.0.
+
+=======================================================================
+Creative Commons Attribution 4.0 International Public License
 =======================================================================
 
 Creative Commons Corporation ("Creative Commons") is not a law firm and

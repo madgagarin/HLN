@@ -1,0 +1,42 @@
+{
+  "description": "D-DNA 3-record keyed HMAC audit chain with monotonic sequence numbers",
+  "audit_key": "cluster-audit-key-secret-2026",
+  "records": [
+    {
+      "content": {
+        "job_id": "job-01j7v66abcdef",
+        "seq": 0,
+        "prev_mac": "",
+        "ts": 1717070000000,
+        "event_type": "genesis",
+        "payload_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "canonical_utf8": "{\"event_type\":\"genesis\",\"job_id\":\"job-01j7v66abcdef\",\"payload_hash\":\"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"prev_mac\":\"\",\"seq\":0,\"ts\":1717070000000}",
+      "expected_mac": "c793ed9e05fe5836a53f1aa91464063c30fe801e3a4baf3dd3d6298bffaf0128"
+    },
+    {
+      "content": {
+        "job_id": "job-01j7v66abcdef",
+        "seq": 1,
+        "prev_mac": "c793ed9e05fe5836a53f1aa91464063c30fe801e3a4baf3dd3d6298bffaf0128",
+        "ts": 1717070001000,
+        "event_type": "state_transition",
+        "payload_hash": "sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069"
+      },
+      "canonical_utf8": "{\"event_type\":\"state_transition\",\"job_id\":\"job-01j7v66abcdef\",\"payload_hash\":\"sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069\",\"prev_mac\":\"c793ed9e05fe5836a53f1aa91464063c30fe801e3a4baf3dd3d6298bffaf0128\",\"seq\":1,\"ts\":1717070001000}",
+      "expected_mac": "c6d26946cb9218ab16e8394edbcd297f1ae4803d2c5492f5b65a37253983c681"
+    },
+    {
+      "content": {
+        "job_id": "job-01j7v66abcdef",
+        "seq": 2,
+        "prev_mac": "c6d26946cb9218ab16e8394edbcd297f1ae4803d2c5492f5b65a37253983c681",
+        "ts": 1717070005000,
+        "event_type": "task_dispatched",
+        "payload_hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+      },
+      "canonical_utf8": "{\"event_type\":\"task_dispatched\",\"job_id\":\"job-01j7v66abcdef\",\"payload_hash\":\"sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\",\"prev_mac\":\"c6d26946cb9218ab16e8394edbcd297f1ae4803d2c5492f5b65a37253983c681\",\"seq\":2,\"ts\":1717070005000}",
+      "expected_mac": "ddc4274eb35f1295ab3c058e9bbd85a6b94436c2851de3d63d5446d512bfe05c"
+    }
+  ]
+}

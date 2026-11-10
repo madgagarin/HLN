@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/policy.schema.json",
+  "title": "Policy",
+  "description": "Execution policy attached to a Job or Task enforcing constrained autonomy.",
+  "type": "object",
+  "properties": {
+    "allowed_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Whitelist of skill names permitted for execution. If empty, all skills allowed."
+    },
+    "budget_cap": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total expense limit for the entire job tree."
+    },
+    "budget_allocated": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Portion of budget allocated exclusively to this task or sub-job."
+    },
+    "budget_currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency or credit unit for budget accounting."
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "Multi-tenant tenant boundary identifier."
+    },
+    "data_classification": {
+      "type": "string",
+      "enum": ["public", "internal", "confidential", "restricted"],
+      "default": "internal",
+      "description": "Data classification level."
+    },
+    "custom_policy": {
+      "type": "object",
+      "description": "Domain-specific policy extension fields passed transitively.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/task_result.schema.json",
+  "title": "TaskResult",
+  "description": "Message returned by a Holon to the Orchestrator upon task completion or failure.",
+  "type": "object",
+  "required": ["job_id", "task_id", "attempt", "job_epoch", "status", "created_at", "envelope_ts", "nonce"],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Owning job identifier matching TaskPayload.job_id."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Task identifier matching TaskPayload.task_id."
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Attempt counter matching claimed task (fencing verification)."
+    },
+    "job_epoch": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Job epoch matching claimed task (split-brain verification)."
+    },
+    "worker_id": {
+      "type": "string",
+      "description": "Identifier of the worker submitting the result."
+    },
+    "origin_worker_id": {
+      "type": "string",
+      "description": "Original source worker ID if bubbled through compound holons."
+    },
+    "status": {
+      "type": "string",
+      "description": "Execution outcome ('success', 'failure', 'cancelled', or custom skill status)."
+    },
+    "data": {
+      "type": "object",
+      "description": "Result data validated against the skill's output_schema.",
+      "additionalProperties": true
+    },
+    "error": {
+      "$ref": "task_error.schema.json"
+    },
+    "costs": {
+      "type": "object",
+      "description": "Expense metrics reported by worker (tokens, compute_seconds).",
+      "properties": {
+        "tokens": { "type": "integer", "minimum": 0 },
+        "compute_seconds": { "type": "number", "minimum": 0 },
+        "estimated_cost": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "trace_context": {
+      "type": "object",
+      "properties": {
+        "traceparent": { "type": "string" },
+        "tracestate": { "type": "string" }
+      },
+      "additionalProperties": true,
+      "description": "W3C Trace Context headers."
+    },
+    "created_at": {
+      "type": "integer",
+      "description": "Timestamp when result was produced (Unix epoch ms)."
+    },
+    "envelope_ts": {
+      "type": "integer",
+      "description": "Timestamp of envelope dispatch (Unix epoch ms)."
+    },
+    "nonce": {
+      "type": "string",
+      "description": "Nonce for replay prevention."
+    },
+    "security": {
+      "$ref": "security_context.schema.json"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

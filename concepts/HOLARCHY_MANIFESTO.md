@@ -1,8 +1,11 @@
 # Architecture: Shell-Stacked Holarchy
 
+> [!NOTE]
+> This document is informative (non-normative). In case of conflict, normative specifications in `spec/` take precedence.
+
 > **"We build Holarchies, not Hierarchies."**
 
-**The net is vast and infinite.** To navigate this complexity without collapsing under cognitive load, we reject the fragile pyramid of traditional control. Instead, we adopt **Shell-Stacking** to construct resilient systems of autonomous entities.
+**The net is vast and interconnected.** To navigate this complexity without collapsing under cognitive load, we reject the fragile pyramid of traditional control. Instead, we adopt **Shell-Stacking** to construct resilient systems of autonomous entities.
 
 ## The Spectrum of Ghosts
 
@@ -71,8 +74,8 @@ This **Reverse Axon** architecture ensures that the Brain never needs to know th
 ### 1. Autonomy & Resilience
 In a standard hierarchy, if the brain dies, the limbs rot. In a Holarchy, if the link to the higher level is severed, the Holon continues to function internally. The Ghost remains intact within the Shell, preserving its state and waiting for a new connection.
 
-### 2. Infinite Recursion
-The pattern is isomorphic at all scales.
+### 2. Arbitrary Configurable Recursion
+The pattern is isomorphic at all scales, bounded by `max_holarchy_depth` (default: 10) to guarantee termination:
 *   **Layer 0:** A Python function (Atomic Ghost).
 *   **Layer 1:** A Worker script wrapping that function (Atomic Holon).
 *   **Layer 2:** An Orchestrator managing a fleet of Layer 1 Workers (Compound Ghost).

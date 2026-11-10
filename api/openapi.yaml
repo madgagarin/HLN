@@ -1,0 +1,1881 @@
+openapi: 3.1.0
+info:
+  title: HLN (Holarchical Logic Network) Protocol API
+  version: 1.0.0
+  description: Normative OpenAPI 3.1.0 specification for HLN Orchestrators and Workers.
+  contact:
+    name: Holarchy Engineering
+    url: https://github.com/madgagarin/rxon
+servers:
+- url: /
+  description: Local orchestrator instance
+paths:
+  /status:
+    get:
+      summary: Health Status
+      description: Returns operational health status of the orchestrator service.
+      tags:
+      - System
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /openapi.json:
+    get:
+      summary: OpenAPI 3.1 Specification
+      description: Returns this OpenAPI 3.1 JSON specification.
+      tags:
+      - System
+      responses:
+        '200':
+          description: OpenAPI JSON document
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/v1/jobs/start/{blueprint_name}:
+    post:
+      summary: Start Job by Blueprint Name
+      description: Generic entry point to create and start a job for any registered
+        blueprint.
+      tags:
+      - Jobs
+      parameters:
+      - name: blueprint_name
+        in: path
+        required: true
+        description: Name of the registered blueprint to execute.
+        schema:
+          type: string
+      - name: X-Webhook-URL
+        in: header
+        required: false
+        description: Callback webhook URL triggered upon job completion or failure.
+        schema:
+          type: string
+          format: uri
+      - name: X-Job-Timeout
+        in: header
+        required: false
+        description: Execution timeout in seconds for this job.
+        schema:
+          type: integer
+          default: 300
+      - name: X-Job-Priority
+        in: header
+        required: false
+        description: Job execution priority.
+        schema:
+          type: string
+          enum:
+          - critical
+          - high
+          - normal
+          - low
+          default: normal
+      - name: X-Correlation-ID
+        in: header
+        required: false
+        description: End-to-end distributed tracing correlation ID.
+        schema:
+          type: string
+      - name: Idempotency-Key
+        in: header
+        required: false
+        description: Unique client token to prevent duplicate task execution.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Pure business payload for the job (input).
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Arbitrary business payload
+      responses:
+        '202':
+          description: Job successfully accepted for execution
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: accepted
+                  job_id:
+                    type: string
+                    example: job_01j7...
+                  id:
+                    type: string
+                    example: job_01j7...
+        '404':
+          description: Blueprint not found
+  /api/v1/jobs/{job_id}:
+    get:
+      summary: Get Job State and Status
+      description: 'Retrieves the full job state split into 5 clean zones: input,
+        output, steps, history, meta.'
+      tags:
+      - Jobs
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        description: Unique identifier of the job.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Job state retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobState'
+        '404':
+          description: Job not found
+  /api/v1/jobs/{job_id}/cancel:
+    post:
+      summary: Cancel Job
+      description: Initiates cooperative cancellation of a running job across workers.
+      tags:
+      - Jobs
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        description: Unique identifier of the job.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Cancellation initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: cancellation_request_sent
+  /api/v1/jobs/{job_id}/evidence:
+    get:
+      summary: Get Incident Evidence Card
+      description: Retrieves the tamper-proof Incident Evidence Card for a quarantined
+        or failed job, available in structured JSON or human-readable Markdown.
+      tags:
+      - Jobs
+      - Diagnostics
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        description: Unique identifier of the job.
+        schema:
+          type: string
+      - name: format
+        in: query
+        required: false
+        description: 'Requested output format: ''json'' or ''markdown''/''md''.'
+        schema:
+          type: string
+          enum:
+          - json
+          - markdown
+          - md
+          default: json
+      responses:
+        '200':
+          description: Incident Evidence Card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentEvidence'
+            text/markdown:
+              schema:
+                type: string
+        '404':
+          description: Job not found
+  /api/v1/jobs/{job_id}/history:
+    get:
+      summary: Get Job Event History
+      description: Retrieves the chronological audit log of all transitions, steps,
+        and worker executions.
+      tags:
+      - Jobs
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        description: Job ID.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Event history list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /api/v1/jobs:
+    get:
+      summary: List Jobs
+      description: Lists recent jobs with pagination support.
+      tags:
+      - Jobs
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+      responses:
+        '200':
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobState'
+  /api/v1/jobs/quarantined:
+    get:
+      summary: List Quarantined Jobs
+      description: Returns list of job IDs currently placed in quarantine for forensic
+        investigation.
+      tags:
+      - Jobs
+      - Diagnostics
+      responses:
+        '200':
+          description: Quarantined job IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/v1/blueprints/{blueprint_name}/dag:
+    get:
+      summary: Get Blueprint Spatial DAG Graph Topology
+      description: Returns the spatial graph nodes, transitions, deciders, and risk
+        metadata for 2D visualization.
+      tags:
+      - Blueprints
+      parameters:
+      - name: blueprint_name
+        in: path
+        required: true
+        description: Blueprint name.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: DAG topology object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DAGTopology'
+        '404':
+          description: Blueprint not found
+  /api/v1/skills:
+    get:
+      summary: Get Two-Tier Lazy Skill Catalog Index
+      description: Returns the ultra-compact index (<5 KB) of all available worker
+        skills across the network.
+      tags:
+      - Skills
+      responses:
+        '200':
+          description: Skill catalog index
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  skills:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SkillIndexItem'
+  /api/v1/skills/{skill_name}:
+    get:
+      summary: Get On-Demand Skill Schema
+      description: Fetches the full argument JSON schema and permission requirements
+        for a specific skill.
+      tags:
+      - Skills
+      parameters:
+      - name: skill_name
+        in: path
+        required: true
+        description: Unique skill name.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Detailed skill schema
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Skill not found
+  /api/v1/workers:
+    get:
+      summary: List Active Workers
+      description: Returns connected worker instances, node types, and current health
+        status.
+      tags:
+      - Workers
+      responses:
+        '200':
+          description: Worker instances list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /_worker/workers/register:
+    post:
+      summary: Register Worker
+      description: Announces worker capabilities, supported skills, resources, and
+        credentials.
+      tags:
+      - Worker Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkerRegistration'
+      responses:
+        '200':
+          description: Worker registered successfully
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+  /_worker/workers/{worker_id}:
+    patch:
+      summary: Worker Heartbeat
+      description: Periodic heartbeat telemetry renewal of task leases and delivery
+        of control directives.
+      tags:
+      - Worker Protocol
+      parameters:
+      - name: worker_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatPayload'
+      responses:
+        '200':
+          description: Heartbeat acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeartbeatResponse'
+  /_worker/workers/{worker_id}/tasks/claim:
+    post:
+      summary: Claim Task (Long-Poll)
+      description: Claims an available task from queue under lease. Returns 204 No
+        Content on long-poll timeout.
+      tags:
+      - Worker Protocol
+      parameters:
+      - name: worker_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: timeout
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 30
+      responses:
+        '200':
+          description: Task claimed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskPayload'
+        '204':
+          description: No tasks available before timeout expired
+        '429':
+          description: Rate limited. Retry-After header provided.
+        '503':
+          description: Service unavailable. Retry-After header provided.
+  /_worker/tasks/result:
+    post:
+      summary: Submit Task Result
+      description: Submits completed task execution output or error.
+      tags:
+      - Worker Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskResult'
+      responses:
+        '200':
+          description: Result accepted
+        '400':
+          description: Schema validation error
+        '409':
+          description: Fencing token conflict
+        '410':
+          description: Job cancelled or deadline expired
+  /_worker/events:
+    post:
+      summary: Emit Worker Signal / Event
+      description: Worker-initiated signal that may bubble up through the holarchy.
+      tags:
+      - Worker Protocol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkerEventPayload'
+      responses:
+        '200':
+          description: Event accepted with optional backpressure directive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+  /v1/upload-sessions/start:
+    post:
+      summary: Start Artifact Upload Session
+      description: Initiates a multi-part CAS upload session with digest verification and lease reservation.
+      tags:
+      - HoloReg CAS Registry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repo_path, required_digests]
+              properties:
+                repo_path:
+                  type: string
+                  example: vision/ocr-fast
+                required_digests:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Session created with missing digests list
+  /v1/blobs/{digest}:
+    get:
+      summary: Download Blob from CAS
+      description: Streams content-addressed blob by SHA-256 digest.
+      tags:
+      - HoloReg CAS Registry
+      parameters:
+      - name: digest
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Raw binary blob stream
+        '404':
+          description: Blob not found
+    put:
+      summary: Upload Blob to CAS
+      description: Streams and stores binary blob validating SHA-256 digest.
+      tags:
+      - HoloReg CAS Registry
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: digest
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Blob created
+  /v1/blobs/negotiate:
+    post:
+      summary: Negotiate Blobs
+      description: Checks which blobs exist in CAS and creates an upload session.
+      tags:
+      - HoloReg CAS Registry
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [blobs]
+              properties:
+                blobs:
+                  type: array
+                  items:
+                    type: object
+                    required: [digest, size_bytes]
+                    properties:
+                      digest:
+                        type: string
+                      size_bytes:
+                        type: integer
+                      media_type:
+                        type: string
+      responses:
+        '200':
+          description: Negotiation results with missing digests
+  /v1/manifests/{namespace}/{name}:
+    post:
+      summary: Publish Manifest
+      description: Publishes a release manifest subject to SemVer Gate schema compatibility verification.
+      tags:
+      - HoloReg CAS Registry
+      parameters:
+      - name: namespace
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CanonicalManifest'
+      responses:
+        '201':
+          description: Manifest published
+        '409':
+          description: SemVer contract violation detected
+  /v1/manifests/{namespace}/{name}/{reference}:
+    get:
+      summary: Fetch Manifest
+      description: Retrieves a release manifest by tag, branch, or digest.
+      tags:
+      - HoloReg CAS Registry
+      parameters:
+      - name: namespace
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: reference
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Release manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanonicalManifest'
+  /v1/manifests/{digest}/referrers:
+    get:
+      summary: OCI v1.1 Referrers Query
+      description: Returns attached supply-chain metadata (SBOMs, SLSA attestations).
+      tags:
+      - HoloReg CAS Registry
+      parameters:
+      - name: digest
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: artifactType
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List of referring descriptors
+  /v1/resolve:
+    get:
+      summary: Resolve SemVer Range
+      description: Resolves a SemVer query string to an exact unyanked release version and digest.
+      tags:
+      - HoloReg CAS Registry
+      parameters:
+      - name: repo
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: version
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Resolved manifest metadata
+  /v1/leases/heartbeat:
+    post:
+      summary: Renew Cluster Workload Leases
+      description: Renews active workload manifest leases protecting them from GC pruning.
+      tags:
+      - HoloReg CAS Registry
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cluster_id, manifest_digests]
+              properties:
+                cluster_id:
+                  type: string
+                manifest_digests:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Leases renewed
+  /v1/telemetry/report:
+    post:
+      summary: Report Telemetry Metrics
+      description: Reports skill execution and cluster telemetry metrics to registry.
+      tags:
+      - HoloReg CAS Registry
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cluster_id, reports]
+              properties:
+                cluster_id:
+                  type: string
+                reports:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: Telemetry reported successfully
+  /api/v1/blueprints/deploy:
+    post:
+      summary: Deploy Compiled Blueprint Graph
+      description: Deploys a compiled declarative blueprint graph and assigns desired skill digests to matching worker groups.
+      tags:
+      - Blueprints
+      - Topology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                blueprint_uri:
+                  type: string
+                manifest_digest:
+                  type: string
+                graph_data:
+                  type: object
+                target_nodes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Blueprint deployed successfully
+  /blueprints/{blueprint_id}/undeploy:
+    post:
+      summary: Undeploy Blueprint
+      description: Undeploys running blueprint and reconciles worker desired skills.
+      tags:
+      - Blueprints
+      parameters:
+      - name: blueprint_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Blueprint undeployed successfully
+  /groups/{group_name}/scale:
+    post:
+      summary: Scale Topology Group
+      description: Adjusts replica count for a skill group on the cluster.
+      tags:
+      - Topology
+      parameters:
+      - name: group_name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [replicas]
+              properties:
+                replicas:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Scaled group confirmation
+  /api/v1/workers/{worker_id}/desired-skills:
+    post:
+      summary: Update Worker Desired Skills
+      description: Adds, removes, or sets desired skill manifest digests for a worker node (reconciled on next heartbeat).
+      tags:
+      - Workers
+      - Topology
+      parameters:
+      - name: worker_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [add, remove, set]
+                  default: set
+                manifest_digests:
+                  type: array
+                  items:
+                    type: string
+                group:
+                  type: string
+      responses:
+        '200':
+          description: Worker desired skills updated
+        '404':
+          description: Worker not found
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+      description: Client authentication token passed in the Authorization header.
+    ClientTokenAuth:
+      type: apiKey
+      in: header
+      name: X-Client-Token
+      description: Client authentication token passed in the X-Client-Token header.
+  schemas:
+    BlobReference:
+      type: object
+      required: [uri, digest, size_bytes]
+      properties:
+        uri:
+          type: string
+        digest:
+          type: string
+        size_bytes:
+          type: integer
+        media_type:
+          type: string
+          default: application/octet-stream
+        etag:
+          type: string
+    CanonicalManifest:
+      type: object
+      required: [schema_version, kind, name, version, contract_digest, input_schema, output_schema, impl_digest]
+      properties:
+        schema_version:
+          type: integer
+          const: 1
+        kind:
+          type: string
+          enum: [skill, blueprint]
+        name:
+          type: string
+          pattern: ^[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)?$
+          maxLength: 192
+        version:
+          type: string
+        parent_digest:
+          type: [string, 'null']
+        author:
+          type: string
+        commit_message:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        mode:
+          type: string
+          enum: [portable, blackbox]
+          default: portable
+        runtime_constraint:
+          type: string
+        driver:
+          type: string
+        entrypoint:
+          type: string
+        driver_config:
+          type: object
+        contract_digest:
+          type: string
+        input_schema:
+          type: object
+        output_schema:
+          type: object
+        config:
+          type: object
+        risk_level:
+          type: string
+          enum: [low, medium, high]
+          default: low
+        impl_digest:
+          type: string
+        env_digest:
+          type: [string, 'null']
+        resources:
+          type: object
+        assets:
+          type: array
+          items:
+            type: object
+        topology:
+          type: [object, 'null']
+        resolved_dependencies:
+          type: array
+          items:
+            type: object
+    JobState:
+      type: object
+      properties:
+        id:
+          type: string
+          example: job_01j7v66...
+        blueprint:
+          type: string
+          example: order_flow
+        status:
+          type: string
+          enum:
+          - running
+          - finished
+          - failed
+          - quarantined
+          - waiting_for_human
+        input:
+          type: object
+          description: Immutable business input payload
+        output:
+          type: object
+          description: Final business result from terminal step
+        steps:
+          type: object
+          description: Blackboard of intermediate step and worker outputs
+        history:
+          type: array
+          items:
+            type: object
+        params:
+          type: object
+        meta:
+          type: object
+        error:
+          type: string
+          nullable: true
+        created_at:
+          type: number
+        finished_at:
+          type: number
+          nullable: true
+    IncidentEvidence:
+      type: object
+      properties:
+        job_id:
+          type: string
+        classification:
+          type: string
+          enum:
+          - transient_network
+          - schema_violation
+          - crash
+          - worker_timeout
+        remediation:
+          type: string
+        incident_card:
+          type: string
+          description: ASCII formatted evidence card
+    DAGTopology:
+      type: object
+      properties:
+        blueprint_name:
+          type: string
+        start_state:
+          type: string
+        nodes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              type:
+                type: string
+                enum:
+                - step
+                - decider
+                - subgraph
+              is_start:
+                type: boolean
+              is_end:
+                type: boolean
+              risk:
+                type: string
+                enum:
+                - low
+                - medium
+                - high
+        edges:
+          type: array
+          items:
+            type: object
+            properties:
+              from:
+                type: string
+              to:
+                type: string
+              is_fallback:
+                type: boolean
+    SkillIndexItem:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        version:
+          type: string
+        risk:
+          type: string
+          enum:
+          - low
+          - medium
+          - high
+        permissions:
+          type: array
+          items:
+            type: string
+    WorkerRegistration:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/worker_registration.schema.json
+      title: WorkerRegistration
+      description: Payload transmitted by a Worker upon connecting to register with
+        an Orchestrator.
+      type: object
+      required:
+      - worker_id
+      properties:
+        worker_id:
+          type: string
+          pattern: ^[a-zA-Z0-9_-]{1,64}$
+          description: Persistent unique identifier of the worker.
+        worker_type:
+          type: string
+          default: generic
+          description: Classification (e.g. 'gpu-worker', 'compound-holon').
+        supported_skills:
+          type: array
+          items:
+            $ref: skill_info.schema.json
+          description: List of skills supported by this worker.
+        available_skills:
+          type: array
+          items:
+            type: string
+          description: Subset of skills currently loaded and ready.
+        hot_skills:
+          type: array
+          items:
+            type: string
+          description: Skills with warm weights / in-memory cache for affinity routing.
+        resources:
+          $ref: resources.schema.json
+        installed_software:
+          type: object
+          additionalProperties:
+            type: string
+          description: Map of installed software environments and versions.
+        capabilities:
+          type: object
+          properties:
+            hostname:
+              type: string
+            ip_address:
+              type: string
+            s3_config_hash:
+              type: string
+            extra:
+              type: object
+              additionalProperties: true
+          additionalProperties: true
+        max_concurrent_tasks:
+          type: integer
+          minimum: 1
+          default: 1
+        public_key_pem:
+          type: string
+          description: Ed25519 public key in PEM format for Profile L2 verification.
+        created_at:
+          type: integer
+          description: Worker registration creation timestamp (ms).
+        envelope_ts:
+          type: integer
+          description: Envelope transmission timestamp (ms).
+        nonce:
+          type: string
+          description: Unique nonce for envelope replay protection.
+        protocol_version:
+          type: string
+          default: 1.2.0
+          description: Preferred RXON protocol version.
+        protocol_min_version:
+          type: string
+          default: 1.0.0
+          description: Minimum acceptable protocol version.
+        protocol_max_version:
+          type: string
+          default: 1.2.0
+          description: Maximum acceptable protocol version.
+        security:
+          $ref: security_context.schema.json
+        metadata:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    HeartbeatPayload:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/heartbeat.schema.json
+      title: HeartbeatPayload
+      description: Periodic heartbeat transmitted by a Worker to maintain connection
+        and lease state.
+      type: object
+      required:
+      - worker_id
+      - status
+      properties:
+        worker_id:
+          type: string
+          description: Identifier of the worker sending the heartbeat.
+        status:
+          type: string
+          enum:
+          - active
+          - idle
+          - busy
+          - draining
+          description: Current operational status.
+        usage:
+          $ref: resources_usage.schema.json
+        current_tasks:
+          type: array
+          items:
+            type: string
+          description: Task IDs currently in progress (renews task leases).
+        available_skills:
+          type: array
+          items:
+            type: string
+          description: Dynamically ready skills.
+        hot_skills:
+          type: array
+          items:
+            type: string
+          description: In-memory cached / warm skills.
+        available_credits:
+          type: integer
+          minimum: 0
+          description: Available capacity credits for credit-based backpressure.
+        envelope_ts:
+          type: integer
+          description: Envelope dispatch timestamp (ms).
+        nonce:
+          type: string
+          description: Nonce for replay protection.
+        security:
+          $ref: security_context.schema.json
+        mounted_manifests:
+          type: array
+          items:
+            type: string
+          description: List of manifest digests currently mounted on the worker.
+        metadata:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    TaskPayload:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/task_payload.schema.json
+      title: TaskPayload
+      description: The complete unit of work claimed by a Worker from the Orchestrator
+        queue.
+      type: object
+      required:
+      - job_id
+      - task_id
+      - type
+      - created_at
+      - envelope_ts
+      - nonce
+      - deadline
+      properties:
+        job_id:
+          type: string
+          description: Identifier of the owning job.
+        task_id:
+          type: string
+          description: Unique identifier of this task execution (idempotency key).
+        attempt:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Monotonically increasing attempt counter (fencing token).
+        job_epoch:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Job epoch for split-brain fencing.
+        type:
+          type: string
+          description: Skill name to execute.
+        params:
+          type: object
+          description: Task input parameters validated against skill input_schema.
+          additionalProperties: true
+        params_sha256:
+          type: string
+          description: Checksum for out-of-band blob references.
+        policy:
+          $ref: policy.schema.json
+        holarchy_depth:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Nesting depth within the holarchy hierarchy.
+        transition_count:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Originating job transition counter for loop detection.
+        trace_context:
+          type: object
+          properties:
+            traceparent:
+              type: string
+            tracestate:
+              type: string
+          additionalProperties: true
+          description: W3C Trace Context headers.
+        tracing_context:
+          type: object
+          additionalProperties: true
+          description: Deprecated legacy alias for trace_context.
+        priority:
+          type: number
+          default: 0.0
+          description: Scheduling priority hint.
+        created_at:
+          type: integer
+          description: Business creation timestamp (Unix epoch ms).
+        envelope_ts:
+          type: integer
+          description: Network packet dispatch timestamp (Unix epoch ms).
+        nonce:
+          type: string
+          description: Cryptographic nonce / UUIDv7 for envelope replay protection.
+        deadline:
+          type: integer
+          description: Absolute wall-clock expiration timestamp (Unix epoch ms).
+        schedule_to_start_timeout_s:
+          type: number
+          minimum: 0.1
+          description: Maximum allowed duration in queue before worker claim.
+        start_to_close_timeout_s:
+          type: number
+          minimum: 0.1
+          description: Maximum allowed worker execution duration post-claim.
+        lease_ttl_s:
+          type: integer
+          minimum: 1
+          default: 60
+          description: Initial task lease duration granted upon claim.
+        orphan_policy:
+          type: string
+          enum:
+          - abort
+          - suspend
+          - continue_bounded
+          default: abort
+          description: Worker behavior if communication with orchestrator is lost.
+        autonomy_ttl_s:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Duration allowed for autonomous execution when orphan_policy
+            is continue_bounded.
+        retry_budget:
+          type: integer
+          minimum: 0
+          default: 3
+          description: Remaining retries permitted in this subtree.
+        target_worker_id:
+          type: string
+          description: Intended worker ID for audience binding.
+        security:
+          $ref: security_context.schema.json
+        metadata:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    TaskResult:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/task_result.schema.json
+      title: TaskResult
+      description: Message returned by a Holon to the Orchestrator upon task completion
+        or failure.
+      type: object
+      required:
+      - job_id
+      - task_id
+      - attempt
+      - job_epoch
+      - status
+      - created_at
+      - envelope_ts
+      - nonce
+      properties:
+        job_id:
+          type: string
+          description: Owning job identifier matching TaskPayload.job_id.
+        task_id:
+          type: string
+          description: Task identifier matching TaskPayload.task_id.
+        attempt:
+          type: integer
+          minimum: 1
+          description: Attempt counter matching claimed task (fencing verification).
+        job_epoch:
+          type: integer
+          minimum: 1
+          description: Job epoch matching claimed task (split-brain verification).
+        worker_id:
+          type: string
+          description: Identifier of the worker submitting the result.
+        origin_worker_id:
+          type: string
+          description: Original source worker ID if bubbled through compound holons.
+        status:
+          type: string
+          description: Execution outcome ('success', 'failure', 'cancelled', or custom
+            skill status).
+        data:
+          type: object
+          description: Result data validated against the skill's output_schema.
+          additionalProperties: true
+        error:
+          $ref: task_error.schema.json
+        costs:
+          type: object
+          description: Expense metrics reported by worker (tokens, compute_seconds).
+          properties:
+            tokens:
+              type: integer
+              minimum: 0
+            compute_seconds:
+              type: number
+              minimum: 0
+            estimated_cost:
+              type: number
+              minimum: 0
+          additionalProperties: true
+        trace_context:
+          type: object
+          properties:
+            traceparent:
+              type: string
+            tracestate:
+              type: string
+          additionalProperties: true
+          description: W3C Trace Context headers.
+        created_at:
+          type: integer
+          description: Timestamp when result was produced (Unix epoch ms).
+        envelope_ts:
+          type: integer
+          description: Timestamp of envelope dispatch (Unix epoch ms).
+        nonce:
+          type: string
+          description: Nonce for replay prevention.
+        security:
+          $ref: security_context.schema.json
+        metadata:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    WorkerEventPayload:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/worker_event.schema.json
+      title: WorkerEventPayload
+      description: Worker-initiated signal that may bubble up through the holarchy.
+      type: object
+      required:
+      - event_id
+      - worker_id
+      - origin_worker_id
+      - event_type
+      - payload
+      - created_at
+      - envelope_ts
+      - nonce
+      properties:
+        event_id:
+          type: string
+          description: Unique event idempotency identifier (UUIDv7 recommended).
+        worker_id:
+          type: string
+          description: Identifier of the worker currently forwarding the signal.
+        origin_worker_id:
+          type: string
+          description: Original source worker that generated the event.
+        event_type:
+          type: string
+          description: Signal classification (e.g. 'progress', 'alert', 'signal').
+        payload:
+          type: object
+          description: Event business payload validated against Blueprint events_schema.
+          additionalProperties: true
+        origin_task_id:
+          type: string
+          description: Task ID that gave rise to this event (if any).
+        bubbling_chain:
+          type: array
+          items:
+            type: string
+          description: Ordered path of worker IDs traversed.
+        provenance_chain:
+          type: array
+          items:
+            type: object
+            required:
+            - hop_id
+            - ts
+            - sig
+            properties:
+              hop_id:
+                type: string
+              ts:
+                type: integer
+              sig:
+                type: string
+              prev_sig:
+                type: string
+            additionalProperties: false
+          description: Append-only nested signature chain.
+        bubbling_ttl:
+          type: integer
+          minimum: 0
+          default: 5
+          description: Decrementing hop limit.
+        target_job_id:
+          type: string
+          description: Specific job address.
+        target_task_id:
+          type: string
+          description: Specific task address.
+        trace_context:
+          type: object
+          properties:
+            traceparent:
+              type: string
+            tracestate:
+              type: string
+          additionalProperties: true
+          description: W3C Trace Context headers.
+        priority:
+          type: number
+          default: 0.0
+          description: Urgency hint.
+        created_at:
+          type: integer
+          description: Event generation timestamp at origin (Unix epoch ms).
+        envelope_ts:
+          type: integer
+          description: Packet dispatch timestamp (Unix epoch ms).
+        nonce:
+          type: string
+          description: Nonce for replay protection.
+        security:
+          $ref: security_context.schema.json
+        metadata:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    TaskError:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/task_error.schema.json
+      title: TaskError
+      description: Structured error details reported when a task does not succeed.
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          enum:
+          - TRANSIENT_ERROR
+          - PERMANENT_ERROR
+          - INVALID_INPUT_ERROR
+          - SECURITY_ERROR
+          - TIMEOUT_ERROR
+          - RESOURCE_EXHAUSTED_ERROR
+          - CONTRACT_VIOLATION_ERROR
+          - DEPENDENCY_ERROR
+          - DEPENDENCY_MISSING_ERROR
+          - INTERNAL_ERROR
+          description: Standardized machine-readable error code.
+        message:
+          type: string
+          description: Human-readable failure explanation.
+        details:
+          type: object
+          description: Optional diagnostic parameters, traces, or field validation
+            errors.
+          additionalProperties: true
+      additionalProperties: false
+    Policy:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/policy.schema.json
+      title: Policy
+      description: Execution policy attached to a Job or Task enforcing constrained
+        autonomy.
+      type: object
+      properties:
+        allowed_skills:
+          type: array
+          items:
+            type: string
+          description: Whitelist of skill names permitted for execution. If empty,
+            all skills allowed.
+        budget_cap:
+          type: number
+          minimum: 0
+          description: Total expense limit for the entire job tree.
+        budget_allocated:
+          type: number
+          minimum: 0
+          description: Portion of budget allocated exclusively to this task or sub-job.
+        budget_currency:
+          type: string
+          default: USD
+          description: Currency or credit unit for budget accounting.
+        tenant_id:
+          type: string
+          description: Multi-tenant tenant boundary identifier.
+        data_classification:
+          type: string
+          enum:
+          - public
+          - internal
+          - confidential
+          - restricted
+          default: internal
+          description: Data classification level.
+        custom_policy:
+          type: object
+          description: Domain-specific policy extension fields passed transitively.
+          additionalProperties: true
+      additionalProperties: true
+    Resources:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/resources.schema.json
+      title: Resources
+      description: Represents the static capacity and hardware assets of a Holon Shell.
+      type: object
+      properties:
+        cpu_cores:
+          type: integer
+          minimum: 1
+          description: Number of available logical CPU cores.
+        ram_gb:
+          type: number
+          minimum: 0.1
+          description: System RAM in Gigabytes.
+        max_concurrent_tasks:
+          type: integer
+          minimum: 1
+          description: Maximum concurrent tasks this Holon can process.
+        devices:
+          type: array
+          items:
+            $ref: hardware_device.schema.json
+          description: List of dedicated hardware accelerators.
+        properties:
+          type: object
+          description: Universal dictionary for resource matching.
+          properties:
+            cpu_cores:
+              type: integer
+              minimum: 1
+            ram_gb:
+              type: number
+              minimum: 0.1
+            region:
+              type: string
+            location:
+              type: string
+            os:
+              type: string
+            arch:
+              type: string
+          additionalProperties: true
+      additionalProperties: false
+    SkillInfo:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/skill_info.schema.json
+      title: SkillInfo
+      description: Defines the contract for a specific ability or skill supported
+        by a Holon.
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          pattern: ^[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)?$
+          maxLength: 192
+          description: Unique identifier of the skill (e.g. 'transcribe' or 'vision/ocr-fast').
+        type:
+          type: string
+          description: Optional category or domain classification.
+        description:
+          type: string
+          description: Human-readable description of the skill.
+        version:
+          type: string
+          description: Semantic version of the skill implementation.
+        input_schema:
+          type: object
+          description: JSON Schema (Draft 2020-12) validating task parameters.
+        output_schema:
+          type: object
+          description: JSON Schema (Draft 2020-12) validating task results.
+        events_schema:
+          type: object
+          additionalProperties:
+            type: object
+          description: Schemas for worker-initiated signals emitted during execution.
+        output_statuses:
+          type: array
+          items:
+            type: string
+          description: List of custom terminal statuses supported by this skill.
+        schema_dialect:
+          type: string
+          default: json-schema
+          description: Dialect of schema definitions.
+        pricing:
+          type: object
+          description: Standardized pricing rates for this skill.
+          properties:
+            cost_per_token:
+              type: number
+              minimum: 0
+            cost_per_task:
+              type: number
+              minimum: 0
+            currency:
+              type: string
+              default: USD
+          additionalProperties: false
+        risk:
+          type: string
+          enum:
+          - low
+          - medium
+          - high
+          - critical
+          default: low
+          description: Risk classification.
+        permissions:
+          type: array
+          items:
+            type: string
+          default: []
+          description: Permissions required to execute this skill.
+        properties:
+          type: object
+          description: Arbitrary skill properties and metadata.
+          additionalProperties: true
+      additionalProperties: false
+    SecurityContext:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/security_context.schema.json
+      title: SecurityContext
+      description: Carries cryptographic signatures, audience binding, and provenance
+        chains.
+      type: object
+      properties:
+        signature:
+          type: string
+          description: Cryptographic signature or MAC of the payload.
+        signer_id:
+          type: string
+          description: Identifier of the signing worker or orchestrator.
+        orchestrator_signature:
+          type: string
+          description: Orchestrator signature over the entire task envelope.
+        identity_chain:
+          type: array
+          items:
+            type: string
+          description: Legacy path of IDs through which the message bubbled.
+        provenance_chain:
+          type: array
+          items:
+            type: object
+            required:
+            - hop_id
+            - ts
+            - sig
+            properties:
+              hop_id:
+                type: string
+              ts:
+                type: integer
+              sig:
+                type: string
+              prev_sig:
+                type: string
+            additionalProperties: false
+          description: Append-only nested signature chain.
+        kid:
+          type: string
+          description: Key identifier for STS token or asymmetric key rotation.
+        metadata:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    EventResponse:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/event_response.schema.json
+      title: EventResponse
+      description: Orchestrator response acknowledging worker event signaling with
+        backpressure directives.
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - accepted
+          - routed
+          - dropped
+          description: Event acceptance disposition.
+        throttle_ms:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Backpressure throttle duration requested from emitting worker.
+        drop_types:
+          type: array
+          items:
+            type: string
+          description: List of signal types temporarily suppressed by the orchestrator.
+        cancel_tasks:
+          type: array
+          items:
+            type: string
+          description: Task IDs marked for cooperative cancellation.
+      additionalProperties: false
+    Blueprint:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      $id: https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/blueprint.schema.json
+      title: Blueprint
+      description: Declarative finite state machine workflow definition in HLN.
+      type: object
+      required:
+      - name
+      - start_state
+      - states
+      - end_states
+      properties:
+        name:
+          type: string
+          pattern: ^[a-zA-Z0-9_-]{1,64}$
+          description: Unique canonical identifier of the blueprint.
+        api_version:
+          type: string
+          default: v1
+          description: API version prefix for auto-exposed HTTP endpoints.
+        api_endpoint:
+          type: string
+          description: Optional REST path mapping for job instantiation.
+        start_state:
+          type: string
+          description: The initial entry state of the FSM.
+        end_states:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Set of terminal states that complete job execution.
+        input_schema:
+          type: object
+          description: JSON Schema validating the initial job input payload.
+        output_schema:
+          type: object
+          description: JSON Schema validating the final terminal output payload.
+        events_schema:
+          type: object
+          additionalProperties:
+            type: object
+          description: Per-event-type schemas for worker-initiated signals.
+        states:
+          type: object
+          additionalProperties:
+            type: object
+            required:
+            - type
+            properties:
+              type:
+                type: string
+                enum:
+                - start
+                - step
+                - decide
+                - parallel
+                - sub_blueprint
+                - end
+              on_success:
+                type: string
+              on_failure:
+                type: string
+              skill:
+                type: string
+              timeout_seconds:
+                type: number
+                minimum: 0.1
+              candidates:
+                type: array
+                items:
+                  type: string
+              fallback:
+                type: string
+              risk:
+                type: string
+                enum:
+                - low
+                - medium
+                - high
+                - critical
+                default: low
+              permissions:
+                type: array
+                items:
+                  type: string
+                default: []
+            additionalProperties: true
+        data_stores:
+          type: object
+          additionalProperties:
+            type: object
+          description: Read-only or partitioned state lookup dictionaries.
+      additionalProperties: false
+    HeartbeatResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        cancel_requested:
+          type: array
+          items:
+            type: string
+        mount_digests:
+          type: array
+          items:
+            type: string
+          description: Manifest digests that the worker must download and mount.
+        unmount_digests:
+          type: array
+          items:
+            type: string
+          description: Manifest digests that the worker must drain and unmount.
+        require_full_sync:
+          type: boolean
+          default: false
+        drain_requested:
+          type: boolean
+          default: false

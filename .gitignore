@@ -3,6 +3,7 @@
 .vscode/
 *.swp
 *.swo
+.holarchy/
 
 # OS files
 .DS_Store

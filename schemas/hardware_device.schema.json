@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/hardware_device.schema.json",
+  "title": "HardwareDevice",
+  "description": "Represents dedicated hardware accelerators (GPUs, NPUs, sensors, actuators).",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["gpu", "npu", "fpga", "sensor", "actuator", "tpu"],
+      "description": "Hardware device category."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model designation (e.g. 'NVIDIA RTX 4090')."
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique hardware serial number or identifier."
+    },
+    "properties": {
+      "type": "object",
+      "description": "Device capabilities dictionary (e.g. vram_gb, compute_capability).",
+      "properties": {
+        "vram_gb": { "type": "number", "minimum": 0 },
+        "compute_capability": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Device runtime metrics (temperature, fan speed, power usage).",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

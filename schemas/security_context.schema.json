@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/security_context.schema.json",
+  "title": "SecurityContext",
+  "description": "Carries cryptographic signatures, audience binding, and provenance chains.",
+  "type": "object",
+  "properties": {
+    "signature": {
+      "type": "string",
+      "description": "Cryptographic signature or MAC of the payload."
+    },
+    "signer_id": {
+      "type": "string",
+      "description": "Identifier of the signing worker or orchestrator."
+    },
+    "orchestrator_signature": {
+      "type": "string",
+      "description": "Orchestrator signature over the entire task envelope."
+    },
+    "identity_chain": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Legacy path of IDs through which the message bubbled."
+    },
+    "provenance_chain": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hop_id", "ts", "sig"],
+        "properties": {
+          "hop_id": { "type": "string" },
+          "ts": { "type": "integer" },
+          "sig": { "type": "string" },
+          "prev_sig": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "description": "Append-only nested signature chain."
+    },
+    "kid": {
+      "type": "string",
+      "description": "Key identifier for STS token or asymmetric key rotation."
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

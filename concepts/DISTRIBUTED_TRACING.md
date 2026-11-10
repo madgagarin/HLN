@@ -1,21 +1,24 @@
 # Distributed Tracing in HLN Holarchy
 
+> [!NOTE]
+> This document is informative (non-normative). In case of conflict, normative specifications in `spec/` take precedence.
+
 To maintain visibility across layers of the HLN, distributed tracing is essential. It allows a user to track a request from the initial "Apex" Orchestrator down to the deepest "Atomic Holon."
 
 ## Trace Context Propagation
 
-HLN follows the **W3C Trace Context** standard. Every message in the RXON protocol that initiates a process or task MUST include a `tracing_context` field.
+HLN follows the **W3C Trace Context** standard. Every message in the RXON protocol that initiates a process or task MUST include a `trace_context` field (with `tracing_context` accepted as a legacy alias).
 
 ### 1. The Context Object
-The `tracing_context` is a dictionary containing standard headers, primarily `traceparent` (and optionally `tracestate`).
+The `trace_context` is a dictionary containing standard headers, primarily `traceparent` (and optionally `tracestate`).
 
 ```json
-"tracing_context": {
+"trace_context": {
   "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
 }
 ```
 
-## 🪜 Propagation Layers
+## Propagation Layers
 
 ### Layer 1: Apex to Compound Holon
 1.  The **Apex Orchestrator** creates a root span for a new Job.
@@ -28,7 +31,7 @@ The `tracing_context` is a dictionary containing standard headers, primarily `tr
 
 ### Layer 3: Atomic Holon (The Worker)
 1.  A **Worker** receives a `TaskPayload`.
-2.  It automatically sets up a local span for the task execution using the provided `tracing_context`.
+2.  It automatically sets up a local span for the task execution using the provided `trace_context`.
 3.  Any logs or sub-calls (e.g., to an LLM API) made within the task are tagged with this trace ID.
 
 ## Span Links and Parent-Child Relationships
@@ -43,9 +46,9 @@ A conforming implementation propagates the trace context as follows:
 *   **Compound Holon (Shell-Stacking bridge)**: extracts the context from an incoming task and passes it to the internal job it starts.
 *   **Worker**: injects the context into the handler so the developer can propagate it further into downstream calls.
 
-## 👁 Observability Benefits
+## Observability Benefits
 
-By strictly propagating `tracing_context`, HLN enables:
+By strictly propagating `trace_context`, HLN enables:
 1.  **Latency Analysis**: Pinpointing which layer of the holarchy is causing delays.
 2.  **Error Root-Cause**: Seeing the exact worker error that caused a cascade of failures up to the Apex.
 3.  **Cost Attribution**: Linking compute resources consumed at the bottom to the specific user request at the top.

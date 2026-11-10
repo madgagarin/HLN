@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/skill_info.schema.json",
+  "title": "SkillInfo",
+  "description": "Defines the contract for a specific ability or skill supported by a Holon.",
+  "type": "object",
+  "required": ["name"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)?$",
+      "maxLength": 192,
+      "description": "Unique identifier of the skill (e.g. 'transcribe' or 'vision/ocr-fast')."
+    },
+    "type": {
+      "type": "string",
+      "description": "Optional category or domain classification."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the skill."
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the skill implementation."
+    },
+    "input_schema": {
+      "type": "object",
+      "description": "JSON Schema (Draft 2020-12) validating task parameters."
+    },
+    "output_schema": {
+      "type": "object",
+      "description": "JSON Schema (Draft 2020-12) validating task results."
+    },
+    "events_schema": {
+      "type": "object",
+      "additionalProperties": { "type": "object" },
+      "description": "Schemas for worker-initiated signals emitted during execution."
+    },
+    "output_statuses": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of custom terminal statuses supported by this skill."
+    },
+    "schema_dialect": {
+      "type": "string",
+      "default": "json-schema",
+      "description": "Dialect of schema definitions."
+    },
+    "pricing": {
+      "type": "object",
+      "description": "Standardized pricing rates for this skill.",
+      "properties": {
+        "cost_per_token": { "type": "number", "minimum": 0 },
+        "cost_per_task": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string", "default": "USD" }
+      },
+      "additionalProperties": false
+    },
+    "risk": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "default": "low",
+      "description": "Risk classification."
+    },
+    "permissions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Permissions required to execute this skill."
+    },
+    "properties": {
+      "type": "object",
+      "description": "Arbitrary skill properties and metadata.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

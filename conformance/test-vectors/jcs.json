@@ -1,0 +1,49 @@
+[
+  {
+    "description": "Object key sorting: UTF-16 code units vs code points",
+    "input": {
+      "�": 1,
+      "😀": 2
+    },
+    "expected_canonical_utf8": "{\"😀\":2,\"�\":1}",
+    "sha256": "ee25c27251f38d1794ae1ce44d35d4e801cd43fb05e12f1b34aff3de57a69848"
+  },
+  {
+    "description": "Standard key alphabetical sorting",
+    "input": {
+      "z": 100,
+      "a": 1,
+      "m": 50
+    },
+    "expected_canonical_utf8": "{\"a\":1,\"m\":50,\"z\":100}",
+    "sha256": "83967c867f53d0f0a8837ad9c7c2994e389e4ca3bc3c3d5c9743119406942605"
+  },
+  {
+    "description": "Numbers: integer floats and negative zero normalization",
+    "input": {
+      "int_float": 42.0,
+      "negative_zero": -0.0,
+      "regular_float": 3.14159,
+      "zero": 0
+    },
+    "expected_canonical_utf8": "{\"int_float\":42,\"negative_zero\":0,\"regular_float\":3.14159,\"zero\":0}",
+    "sha256": "fe79c37982814fea8e8f265fcce4478035370693aefcb104b23c3d83d551f0fe"
+  },
+  {
+    "description": "Nested structures and array stability",
+    "input": {
+      "nested": {
+        "b": [
+          3,
+          2,
+          1
+        ],
+        "a": true
+      },
+      "empty_dict": {},
+      "empty_list": []
+    },
+    "expected_canonical_utf8": "{\"empty_dict\":{},\"empty_list\":[],\"nested\":{\"a\":true,\"b\":[3,2,1]}}",
+    "sha256": "c2e44b3c6f7b89d4275e3175f9a9cfe51336575dd17d3829153ee872dfb7178b"
+  }
+]

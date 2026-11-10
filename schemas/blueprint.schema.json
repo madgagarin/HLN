@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/blueprint.schema.json",
+  "title": "Blueprint",
+  "description": "Declarative finite state machine workflow definition in HLN.",
+  "type": "object",
+  "required": ["name", "start_state", "states", "end_states"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+      "description": "Unique canonical identifier of the blueprint."
+    },
+    "api_version": {
+      "type": "string",
+      "default": "v1",
+      "description": "API version prefix for auto-exposed HTTP endpoints."
+    },
+    "api_endpoint": {
+      "type": "string",
+      "description": "Optional REST path mapping for job instantiation."
+    },
+    "start_state": {
+      "type": "string",
+      "description": "The initial entry state of the FSM."
+    },
+    "end_states": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Set of terminal states that complete job execution."
+    },
+    "input_schema": {
+      "type": "object",
+      "description": "JSON Schema validating the initial job input payload."
+    },
+    "output_schema": {
+      "type": "object",
+      "description": "JSON Schema validating the final terminal output payload."
+    },
+    "events_schema": {
+      "type": "object",
+      "additionalProperties": { "type": "object" },
+      "description": "Per-event-type schemas for worker-initiated signals."
+    },
+    "states": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["start", "step", "decide", "parallel", "sub_blueprint", "end"]
+          },
+          "on_success": { "type": "string" },
+          "on_failure": { "type": "string" },
+          "skill": { "type": "string" },
+          "timeout_seconds": { "type": "number", "minimum": 0.1 },
+          "candidates": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "fallback": { "type": "string" },
+          "risk": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "default": "low"
+          },
+          "permissions": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": []
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "data_stores": {
+      "type": "object",
+      "additionalProperties": { "type": "object" },
+      "description": "Read-only or partitioned state lookup dictionaries."
+    }
+  },
+  "additionalProperties": false
+}

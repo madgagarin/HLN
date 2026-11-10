@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/event_response.schema.json",
+  "title": "EventResponse",
+  "description": "Orchestrator response acknowledging worker event signaling with backpressure directives.",
+  "type": "object",
+  "required": ["status"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["accepted", "routed", "dropped"],
+      "description": "Event acceptance disposition."
+    },
+    "throttle_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Backpressure throttle duration requested from emitting worker."
+    },
+    "drop_types": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of signal types temporarily suppressed by the orchestrator."
+    },
+    "cancel_tasks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Task IDs marked for cooperative cancellation."
+    }
+  },
+  "additionalProperties": false
+}

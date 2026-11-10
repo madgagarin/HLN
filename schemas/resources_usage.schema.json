@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/resources_usage.schema.json",
+  "title": "ResourcesUsage",
+  "description": "Real-time system resource load reported in heartbeats.",
+  "type": "object",
+  "properties": {
+    "cpu_load_percent": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "default": 0.0,
+      "description": "Current CPU load percentage."
+    },
+    "ram_used_gb": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 0.0,
+      "description": "Current system RAM consumed in Gigabytes."
+    },
+    "devices_usage": {
+      "type": "array",
+      "items": {
+        "$ref": "device_usage.schema.json"
+      },
+      "description": "Per-accelerator usage telemetry."
+    }
+  },
+  "additionalProperties": false
+}

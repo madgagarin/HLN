@@ -1,0 +1,31 @@
+{
+  "description": "Full envelope task signing with audience binding under RFC 8785 canonicalization",
+  "secret_token": "worker-test-token-32-bytes-secure",
+  "envelope": {
+    "job_id": "job-01j7v66abcdef",
+    "task_id": "task-01j7v66ghijkl",
+    "attempt": 1,
+    "job_epoch": 1,
+    "type": "transcribe",
+    "params": {
+      "audio_url": "blob://meeting.mp3",
+      "language": "en"
+    },
+    "deadline": 1717070300000,
+    "priority": 1.0,
+    "policy": {
+      "allowed_skills": [
+        "transcribe"
+      ],
+      "budget_cap": 10.0
+    },
+    "holarchy_depth": 1,
+    "transition_count": 3,
+    "created_at": 1717070000000,
+    "envelope_ts": 1717070001000,
+    "nonce": "0194e3b1-7b00-741a-85ef-123456789abc",
+    "target_worker_id": "worker-gpu-01"
+  },
+  "canonical_envelope_utf8": "{\"attempt\":1,\"created_at\":1717070000000,\"deadline\":1717070300000,\"envelope_ts\":1717070001000,\"holarchy_depth\":1,\"job_epoch\":1,\"job_id\":\"job-01j7v66abcdef\",\"nonce\":\"0194e3b1-7b00-741a-85ef-123456789abc\",\"params\":{\"audio_url\":\"blob://meeting.mp3\",\"language\":\"en\"},\"policy\":{\"allowed_skills\":[\"transcribe\"],\"budget_cap\":10},\"priority\":1,\"target_worker_id\":\"worker-gpu-01\",\"task_id\":\"task-01j7v66ghijkl\",\"transition_count\":3,\"type\":\"transcribe\"}",
+  "expected_hmac_sha256": "8770221a9906602924f3c9cdc7a3350ff62dfcaba6d61f2ab3ec81c626b3eccf"
+}

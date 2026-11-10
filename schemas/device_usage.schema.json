@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/device_usage.schema.json",
+  "title": "DeviceUsage",
+  "description": "Real-time load telemetry for a specific hardware unit.",
+  "type": "object",
+  "required": ["unit_id", "load_percent"],
+  "properties": {
+    "unit_id": {
+      "type": "string",
+      "description": "Hardware device identifier matching HardwareDevice.id or index."
+    },
+    "load_percent": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "description": "Current device compute utilization percentage."
+    },
+    "vram_used_gb": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Current video RAM consumed in Gigabytes."
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Arbitrary diagnostic metrics (e.g. temperature, wattage).",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

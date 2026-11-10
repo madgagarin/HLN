@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/worker_registration.schema.json",
+  "title": "WorkerRegistration",
+  "description": "Payload transmitted by a Worker upon connecting to register with an Orchestrator.",
+  "type": "object",
+  "required": ["worker_id"],
+  "properties": {
+    "worker_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+      "description": "Persistent unique identifier of the worker."
+    },
+    "worker_type": {
+      "type": "string",
+      "default": "generic",
+      "description": "Classification (e.g. 'gpu-worker', 'compound-holon')."
+    },
+    "supported_skills": {
+      "type": "array",
+      "items": {
+        "$ref": "skill_info.schema.json"
+      },
+      "description": "List of skills supported by this worker."
+    },
+    "available_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Subset of skills currently loaded and ready."
+    },
+    "hot_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Skills with warm weights / in-memory cache for affinity routing."
+    },
+    "resources": {
+      "$ref": "resources.schema.json"
+    },
+    "installed_software": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Map of installed software environments and versions."
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "hostname": { "type": "string" },
+        "ip_address": { "type": "string" },
+        "s3_config_hash": { "type": "string" },
+        "extra": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": true
+    },
+    "max_concurrent_tasks": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "public_key_pem": {
+      "type": "string",
+      "description": "Ed25519 public key in PEM format for Profile L2 verification."
+    },
+    "created_at": {
+      "type": "integer",
+      "description": "Worker registration creation timestamp (ms)."
+    },
+    "envelope_ts": {
+      "type": "integer",
+      "description": "Envelope transmission timestamp (ms)."
+    },
+    "nonce": {
+      "type": "string",
+      "description": "Unique nonce for envelope replay protection."
+    },
+    "protocol_version": {
+      "type": "string",
+      "default": "1.2.0",
+      "description": "Preferred RXON protocol version."
+    },
+    "protocol_min_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Minimum acceptable protocol version."
+    },
+    "protocol_max_version": {
+      "type": "string",
+      "default": "1.2.0",
+      "description": "Maximum acceptable protocol version."
+    },
+    "security": {
+      "$ref": "security_context.schema.json"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

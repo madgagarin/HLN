@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 1000 1000"
+   width="100%"
+   height="100%"
+   version="1.1"
+   id="svg17"
+   sodipodi:docname="HLN.svg"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs17" />
+  <sodipodi:namedview
+     id="namedview17"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.1313708"
+     inkscape:cx="464.48079"
+     inkscape:cy="348.25011"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg17" />
+  <rect
+     width="1000"
+     height="1000"
+     fill="#f4f0e6"
+     id="rect1" />
+  <rect
+     x="77.249992"
+     y="655.25"
+     width="399.64542"
+     height="123.39545"
+     fill="none"
+     stroke="#111111"
+     stroke-width="5.35456"
+     stroke-dasharray="24, 14"
+     id="rect6-5-7"
+     style="stroke-width:9;stroke-dasharray:18, 9;stroke-dashoffset:0" />
+  <rect
+     x="97.357681"
+     y="671.85767"
+     width="361.78464"
+     height="91.78463"
+     fill="#ede8dc"
+     stroke="#111111"
+     stroke-width="8.21537"
+     id="rect12-2" />
+  <rect
+     x="524.17725"
+     y="655.92725"
+     width="399.64542"
+     height="123.39545"
+     fill="none"
+     stroke="#111111"
+     stroke-width="5.35456"
+     stroke-dasharray="24, 14"
+     id="rect6-5"
+     style="stroke-width:9;stroke-dasharray:18, 9;stroke-dashoffset:0" />
+  <line
+     x1="516.5"
+     y1="352.50494"
+     x2="937.75"
+     y2="352.50494"
+     stroke="#111111"
+     stroke-width="10.6672"
+     stroke-dasharray="28, 20"
+     id="line3-6"
+     style="fill:none;stroke-width:12.0099;stroke-miterlimit:4;stroke-dasharray:24.0199, 12.0099;stroke-dashoffset:0" />
+  <rect
+     x="30"
+     y="30"
+     width="940"
+     height="940"
+     fill="none"
+     stroke="#111111"
+     stroke-width="12"
+     id="rect2" />
+  <text
+     x="500"
+     y="85"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="38px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1.5"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text2">HLN // AI PRODUCTION ARCHITECTURE</text>
+  <line
+     x1="50"
+     y1="110"
+     x2="950"
+     y2="110"
+     stroke="#111111"
+     stroke-width="8"
+     id="line2" />
+  <rect
+     x="69.833763"
+     y="139.83377"
+     width="860.33246"
+     height="84.082474"
+     fill="#ede8dc"
+     stroke="#111111"
+     stroke-width="9.66753"
+     id="rect3" />
+  <text
+     x="500"
+     y="195"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="34px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text3">LAYER 0: APEX ORCHESTRATOR / CLOUD</text>
+  <line
+     x1="63"
+     y1="351.62396"
+     x2="484.25"
+     y2="351.62396"
+     stroke="#111111"
+     stroke-width="10.6672"
+     stroke-dasharray="28, 20"
+     id="line3"
+     style="fill:none;stroke-width:12.0099;stroke-miterlimit:4;stroke-dasharray:24.0199, 12.0099;stroke-dashoffset:0" />
+  <text
+     x="1002.2097"
+     y="308.42978"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="28.7772px"
+     font-weight="900"
+     fill="#111111"
+     text-anchor="end"
+     id="text4"
+     transform="scale(0.93556913,1.0688681)"
+     style="stroke-width:1.19905">NAT / FIREWALL BARRIER</text>
+  <g
+     id="center_arrow_group">
+    <path
+       d="M 481.5 393.5 L 481.5 262.75 L 460 262.75 L 499.5 222.75 L 539 262.75 L 517.5 262.75 L 517.5 393.5 Z"
+       fill="#111111"
+       stroke="#111111"
+       stroke-width="5"
+       stroke-linejoin="round"
+       id="path4_thick"
+       style="stroke-linejoin:miter" />
+    <text
+       transform="rotate(-90)"
+       text-anchor="middle"
+       font-family="'Arial Black', Impact, sans-serif"
+       font-size="18px"
+       font-weight="900"
+       fill="#f4f0e6"
+       id="text1"
+       x="-318.67862"
+       y="506.63388">ZERO TRUST</text>
+  </g>
+  <text
+     x="80.510643"
+     y="256.34717"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="30.0089px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1.07175"
+     paint-order="stroke fill"
+     text-anchor="start"
+     id="text5"
+     transform="scale(0.95941814,1.0422984)">RXON REVERSE CONN.</text>
+  <text
+     x="75.75"
+     y="299.40164"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="22px"
+     font-weight="900"
+     fill="#111111"
+     text-anchor="start"
+     id="text6"><tspan
+       sodipodi:role="line"
+       id="tspan17"
+       x="75.75"
+       y="299.40164">OUTBOUND PULL</tspan><tspan
+       sodipodi:role="line"
+       id="tspan18"
+       x="75.75"
+       y="326.90164">NO INBOUND PORTS</tspan></text>
+  <rect
+     x="64.647972"
+     y="389.64798"
+     width="870.70404"
+     height="170.70406"
+     fill="none"
+     stroke="#111111"
+     stroke-width="9.29595"
+     stroke-dasharray="24, 14"
+     id="rect6" />
+  <text
+     x="94"
+     y="426"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="22px"
+     font-weight="900"
+     fill="#111111"
+     text-anchor="start"
+     id="text7">THE SHELL [ STANDARDIZED INTERFACE ]</text>
+  <rect
+     x="89.458115"
+     y="447.45813"
+     width="821.08374"
+     height="87.333771"
+     fill="#ede8dc"
+     stroke="#111111"
+     stroke-width="8.91623"
+     id="rect7" />
+  <text
+     x="500.88388"
+     y="503.65164"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="32px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text8">LAYER 1: EDGE GATEWAY ORCHESTRATOR</text>
+  <g
+     id="left_arrow_group">
+    <path
+       d="M 260.01752,657.25049 V 577.21226 H 245.03504 L 275,536.03504 l 29.96496,41.17722 h -14.98248 v 80.03823 z"
+       fill="#111111"
+       stroke="#111111"
+       stroke-width="5.07008"
+       stroke-linejoin="round"
+       id="path8_thick"
+       style="stroke-width:5.07;stroke-dasharray:none;stroke-linejoin:miter" />
+    <text
+       transform="rotate(-90)"
+       text-anchor="middle"
+       font-family="'Arial Black', Impact, sans-serif"
+       font-size="12.4951px"
+       font-weight="900"
+       fill="#f4f0e6"
+       id="text9"
+       x="-603.94128"
+       y="279.54608"
+       style="stroke-width:1.19001">ZERO TRUST</text>
+  </g>
+  <g
+     id="right_arrow_group"
+     transform="matrix(1.0001414,0,0,0.99646877,-0.10249738,1.8884987)">
+    <path
+       d="M 710,658.75 V 576 h -15 l 30,-40 30,40 h -15 v 82.75 z"
+       fill="#111111"
+       stroke="#111111"
+       stroke-width="5"
+       stroke-linejoin="round"
+       id="path9_thick"
+       style="stroke-linejoin:miter" />
+    <text
+       transform="rotate(-90)"
+       text-anchor="middle"
+       font-family="'Arial Black', Impact, sans-serif"
+       font-size="12.815px"
+       font-weight="900"
+       fill="#f4f0e6"
+       id="text10"
+       x="-605.23523"
+       y="729.68585"
+       style="stroke-width:1.22048">ZERO TRUST</text>
+  </g>
+  <text
+     x="500"
+     y="603"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="28px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text11">RXON PULL</text>
+  <text
+     x="501.25"
+     y="631.75"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="22px"
+     font-weight="900"
+     fill="#555555"
+     text-anchor="middle"
+     id="text12">INFINITE SHELL-STACKING</text>
+  <text
+     x="277.5"
+     y="712.25"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="28px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text13">LAYER 2: ATOMIC</text>
+  <text
+     x="276.25"
+     y="744.5"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="22px"
+     font-weight="900"
+     fill="#111111"
+     text-anchor="middle"
+     id="text14">SCRIPT / HUMAN / AI</text>
+  <rect
+     x="542.85773"
+     y="671.85773"
+     width="361.78464"
+     height="91.78463"
+     fill="#ede8dc"
+     stroke="#111111"
+     stroke-width="8.21537"
+     id="rect12" />
+  <text
+     x="725"
+     y="711"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="28px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text15">LAYER 2: PHYSICAL</text>
+  <text
+     x="726.25"
+     y="744.5"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="24px"
+     font-weight="900"
+     fill="#111111"
+     text-anchor="middle"
+     id="text16">ROBOT / SENSOR</text>
+  <rect
+     x="70"
+     y="800"
+     width="860"
+     height="70"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="4"
+     id="rect14" />
+  <text
+     x="500"
+     y="848"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="34px"
+     font-weight="900"
+     fill="#f4f0e6"
+     stroke="#f4f0e6"
+     stroke-width="1"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text17">GITHUB.COM/MADGAGARIN/HLN</text>
+  <text
+     x="500"
+     y="908"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="26px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1.5"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text18">THE NET IS VAST AND INFINITE.</text>
+  <text
+     x="500"
+     y="945"
+     font-family="'Arial Black', Impact, sans-serif"
+     font-size="26px"
+     font-weight="900"
+     fill="#111111"
+     stroke="#111111"
+     stroke-width="1.5"
+     paint-order="stroke fill"
+     text-anchor="middle"
+     id="text19">TRUST NO SHELL. VERIFY EVERY GHOST.</text>
+</svg>

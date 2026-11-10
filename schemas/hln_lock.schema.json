@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/hln_lock.schema.json",
+  "title": "HlnLock",
+  "description": "Validation schema for deterministic hln.lock lockfiles",
+  "type": "object",
+  "required": ["lock_version", "packages"],
+  "properties": {
+    "lock_version": { "type": "integer", "const": 1 },
+    "generated_at": { "type": "number" },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "manifest_digest",
+          "impl_digest",
+          "contract_digest",
+          "canonical_version"
+        ],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "manifest_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "env_digest": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+          "impl_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "contract_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "driver": { "type": "string" },
+          "canonical_version": { "type": "string" }
+        }
+      }
+    }
+  }
+}

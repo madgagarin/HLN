@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/task_payload.schema.json",
+  "title": "TaskPayload",
+  "description": "The complete unit of work claimed by a Worker from the Orchestrator queue.",
+  "type": "object",
+  "required": ["job_id", "task_id", "type", "created_at", "envelope_ts", "nonce", "deadline"],
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Identifier of the owning job."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Unique identifier of this task execution (idempotency key)."
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Monotonically increasing attempt counter (fencing token)."
+    },
+    "job_epoch": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Job epoch for split-brain fencing."
+    },
+    "type": {
+      "type": "string",
+      "description": "Skill name to execute."
+    },
+    "params": {
+      "type": "object",
+      "description": "Task input parameters validated against skill input_schema.",
+      "additionalProperties": true
+    },
+    "params_sha256": {
+      "type": "string",
+      "description": "Checksum for out-of-band blob references."
+    },
+    "policy": {
+      "$ref": "policy.schema.json"
+    },
+    "holarchy_depth": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Nesting depth within the holarchy hierarchy."
+    },
+    "transition_count": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Originating job transition counter for loop detection."
+    },
+    "trace_context": {
+      "type": "object",
+      "properties": {
+        "traceparent": { "type": "string" },
+        "tracestate": { "type": "string" }
+      },
+      "additionalProperties": true,
+      "description": "W3C Trace Context headers."
+    },
+    "tracing_context": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Deprecated legacy alias for trace_context."
+    },
+    "priority": {
+      "type": "number",
+      "default": 0.0,
+      "description": "Scheduling priority hint."
+    },
+    "created_at": {
+      "type": "integer",
+      "description": "Business creation timestamp (Unix epoch ms)."
+    },
+    "envelope_ts": {
+      "type": "integer",
+      "description": "Network packet dispatch timestamp (Unix epoch ms)."
+    },
+    "nonce": {
+      "type": "string",
+      "description": "Cryptographic nonce / UUIDv7 for envelope replay protection."
+    },
+    "deadline": {
+      "type": "integer",
+      "description": "Absolute wall-clock expiration timestamp (Unix epoch ms)."
+    },
+    "schedule_to_start_timeout_s": {
+      "type": "number",
+      "minimum": 0.1,
+      "description": "Maximum allowed duration in queue before worker claim."
+    },
+    "start_to_close_timeout_s": {
+      "type": "number",
+      "minimum": 0.1,
+      "description": "Maximum allowed worker execution duration post-claim."
+    },
+    "lease_ttl_s": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 60,
+      "description": "Initial task lease duration granted upon claim."
+    },
+    "orphan_policy": {
+      "type": "string",
+      "enum": ["abort", "suspend", "continue_bounded"],
+      "default": "abort",
+      "description": "Worker behavior if communication with orchestrator is lost."
+    },
+    "autonomy_ttl_s": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Duration allowed for autonomous execution when orphan_policy is continue_bounded."
+    },
+    "retry_budget": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 3,
+      "description": "Remaining retries permitted in this subtree."
+    },
+    "target_worker_id": {
+      "type": "string",
+      "description": "Intended worker ID for audience binding."
+    },
+    "security": {
+      "$ref": "security_context.schema.json"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

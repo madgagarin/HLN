@@ -1,67 +1,100 @@
 # HLN: Holarchical Logic Network
 
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-brightgreen.svg)](https://creativecommons.org/licenses/by/4.0/)
+<p align="center">
+  <img src="assets/HLN.svg" alt="HLN Architecture Diagram" width="700">
+</p>
 
-**HLN (Holarchical Logic Network)** is an architectural pattern designed to orchestrate autonomous, distributed agents in a secure, predictable, and scalable manner.
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/Spec%20License-CC%20BY%204.0-brightgreen.svg" alt="License: CC BY 4.0"></a>
+  <a href="LICENSE-CODE"><img src="https://img.shields.io/badge/Code%20License-Apache--2.0-blue.svg" alt="License: Apache-2.0"></a>
+  <a href="spec/SPECIFICATION.md"><img src="https://img.shields.io/badge/Status-Normative%20Standard-brightgreen.svg" alt="Status: Normative Standard"></a>
+</p>
 
-Unlike traditional **A2A (Agent-to-Agent)** networks where behavior is emergent and often chaotic, HLN introduces a structured **Holarchy** (a hierarchy of autonomous units). It transforms unpredictable AI swarms into reliable, fractal business processes.
+**HLN (Holarchical Logic Network)** is an architectural standard and network protocol designed to orchestrate autonomous, distributed agents in a cryptographically secure, predictable, and scalable manner.
+
+Unlike unstructured peer-to-peer agent swarms where emergent communication leads to cascading execution and non-deterministic failures, HLN enforces a structured **Holarchy** (a hierarchy of autonomous units). It coordinates non-deterministic AI agents and deterministic software systems through verifiable finite-state blueprints.
+
+---
 
 ## Key Principles
 
 ### 1. The Holon (Ghost-in-the-Shell)
-The fundamental unit of HLN is the **Holon**. Every Holon follows a simple pattern:
-*   **The Ghost**: The internal logic (an AI model, a script, or a human expert).
-*   **The Shell**: A standardized interface that makes the Ghost part of the network using the **RXON** protocol.
+The fundamental atomic unit of HLN is the **Holon**. Every Holon decouples execution logic from network contracts:
+* **The Ghost**: The internal decision logic (an LLM agent, a deterministic script, a robotic controller, or a human expert).
+* **The Shell**: A standardized, strictly typed network interface that connects the Ghost to the network via the **RXON** protocol.
 
-By combining them, we get a predictable building block that can be stacked like nesting dolls (**Matryoshka**).
+Combining them produces a self-contained building block that can be nested recursively (**Matryoshka Principle**).
 
 ### 2. RXON (Reverse Axon Protocol)
-The "nervous system" of the HLN. Nodes in the network communicate using the [**RXON**](https://github.com/madgagarin/RXON) (Reverse Axon) protocol. The superior node (Ghost) **never** connects to the subordinate node (Shell). Instead, the Shell initiates the connection.
+The communication backbone of HLN. Communication in HLN follows a strictly **Worker-Initiated (Pull)** model. The superior orchestrator **never** initiates connections to subordinate workers. Instead, the subordinate Shell initiates the connection upward:
+* **Bottom-Up Initiative**: Workers connect upstream to claim tasks and stream results.
+* **Zero Exposed Attack Surface**: Execution nodes operate securely behind NATs, corporate firewalls, or on edge IoT devices with no open inbound ports.
+* **Dual-Profile Zero Trust**: Support for verifiable provenance chains (`provenance_chain`) and envelope integrity verification across arbitrary nesting layers.
 
-A **Reverse Axon** is a secure, worker-initiated tunnel:
-*   **Bottom-Up Initiative**: The "muscle" (Shell) grows a nerve towards the "brain" (Ghost).
-*   **No Open Ports**: Nodes run safely behind NAT, firewalls, or on mobile devices.
-*   **Zero Trust**: Built-in support for **Identity Chains** and cryptographically verified message bubbling across infinite layers.
+### 3. Shell-Stacked Holarchy (Fractal Composition)
+HLN builds **Holarchies**, not rigid centralized monoliths:
+* **Fractal Isomorphism**: A complex cluster of sub-orchestrators and workers can be encased within a single Shell to present the exact same worker interface to a higher-level orchestrator.
+* **Bounded Recursion**: Nesting is configurable to arbitrary depths while strictly bounded by protocol limiters (`max_holarchy_depth`, default: 10) to eliminate runaway execution loops.
 
-### 3. Shell-Stacked Holarchy (The Structure)
-We build **Holarchies**, not simple Hierarchies.
-*   **Fractal**: A complex cluster of Holons can be wrapped in a single Shell to appear as a simple specialist to a higher-level system.
-*   **Recursive**: The pattern (Ghost -> Shell) repeats at every scale, allowing for infinite depth.
+### 4. Directional Resource & Skill Matching
+HLN abstracts compute capacity, models, and domain skills as standardized intents:
+* **Universal Semantics**: Any device (GPU, NPU, Sensor, Actuator) or skill capability is matched using directional operators (`min`, `max`, `eq`, `in`, `contains_all`).
+* **Safe Allocation**: Hardware requirements enforce minimum capacity floors (CPU, RAM, VRAM), pricing and latency specify maximum ceilings, and skill capabilities require strict superset compliance.
 
-### 4. Smart Resource Matching
-HLN treats hardware and expertise as abstract units of "Intent".
-*   **Universal**: Any device (GPU, Sensor, Actuator) or human skill is matched by arbitrary `properties`.
-*   **Smart Matching**: Intent is matched to reality using standardized **GE (Greater or Equal)** logic for numbers.
+---
 
-## Documentation
+## Documentation Structure
 
-### Core Documents
+### Normative Standards (`spec/`)
+Normative documents define the requirements that compliant implementations **MUST** satisfy (following RFC 2119 / RFC 8174 keywords):
 
-*   [**The HLN Manifesto**](MANIFESTO.md): Why we need to tame the chaos of AI agents.
-*   [**Specification**](SPECIFICATION.md): The technical details of the protocol.
-*   [**Security Model**](SECURITY.md): Connectivity security, mTLS, and Zero Trust.
-*   [**Worker Protocol Reference**](docs/worker_protocol_reference.md): JSON-level API description for implementers.
+* [**Technical Specification**](spec/SPECIFICATION.md): Core protocol, data models, state transitions, and wire-level contracts.
+* [**RXON Protocol**](spec/rxon-v1.1.md): Version range negotiation, skill namespaces, SemVer build metadata, schema compatibility, and `BlobReference` CAS offloading.
+* [**HoloReg CAS & Merkle DAG Registry**](spec/registry-cas.md): OCI v1.1 CAS storage, relational Merkle DAG index, upload sessions, SemVer Gate, Referrers API, cluster leases & GC.
+* [**HLN Manifest & Bundling**](spec/manifest-and-bundling.md): Project manifest `hln.toml`, lockfile `hln.lock`, `CanonicalManifest`, and deterministic `.tar.zst` bundling.
+* [**HoloNode Worker Runtime**](spec/worker-runtime.md): Dynamic skill mounting via `mounter.py`, `uv venv` sub-workers over Unix Domain Sockets, pull-based skill synchronization via Heartbeat, SLSA/SBOM verification.
+* [**Holarchy Orchestrator Topology**](spec/orchestrator-topology.md): `TopologyManager`, compiled `graph.rxon.json` execution without raw Python evaluation on Control Plane, worker groups `[topology.groups]`, federated `[topology.external]` holons.
+* [**Blueprint & FSM Specification**](spec/blueprint.md): Declarative workflow topology, deciders, conditional steps, and DAG coordination.
+* [**Canonical JSON (RFC 8785 / JCS)**](spec/canonical-json.md): Deterministic serialization rules for cryptographic signing and hashing.
+* [**Lifecycle & FSM Statuses**](spec/lifecycle-and-status.md): Task and job lifecycle states, transitions, timeouts, and quarantine semantics.
+* [**Conformance Profiles**](spec/conformance.md): Specification of Profile `L1-Baseline` (HMAC + TLS) and Profile `L2-Hardened` (Ed25519/JWS + mTLS + STS).
+* [**Distributed Tracing Protocol**](spec/observability-protocol.md): End-to-end W3C trace context propagation across orchestrators and workers.
 
-### Concepts & Deep Dives
+### Informative Deep Dives & Guides (`concepts/`, `docs/`)
+* [**HLN Manifesto**](MANIFESTO.md): Philosophical foundations and the case for deterministic agent orchestration.
+* [**Terminology & Glossary**](GLOSSARY.md): Formal terms and standard definitions used across HLN specifications.
+* [**Worker Protocol Reference**](docs/worker_protocol_reference.md): Practical HTTP wire format reference for worker registration, task long-polling, and heartbeats.
+* [**Prior Art & Lineage**](docs/PRIOR_ART.md): Scholarly foundations (Koestler 1967, PROSA 1998, Beer VSM 1972, OTP 1996, Temporal) and HLN's specific delta.
+* [**Holarchy & Shell-Stacking**](concepts/HOLARCHY_MANIFESTO.md): Conceptual deep dive into recursive composition.
+* [**Security Extensions**](concepts/SECURITY_EXTENSIONS.md): Policy enforcement points, bounded recursion, and tamper-evident audit.
+* [**Reactive HLN**](concepts/REACTIVE_HLN.md): Worker-initiated event signaling, credit-based backpressure, and bubbling.
+* [**Physical Holons**](concepts/PHYSICAL_HOLONS.md): Extending the grid to robotics, cyber-physical devices, and IoT.
+* [**Pluggable Transports**](concepts/PLUGGABLE_TRANSPORTS.md): Decoupling the protocol from HTTP/WS across alternative transports.
 
-*   [**Holarchy & Shell-Stacking**](concepts/HOLARCHY_MANIFESTO.md): Deep dive into the philosophical architecture.
-*   [**Security Extensions**](concepts/SECURITY_EXTENSIONS.md): Policy enforcement, recursive protection, and cryptographic audit.
-*   [**Reactive HLN**](concepts/REACTIVE_HLN.md): Worker-initiated events, signaling, and bubbling.
-*   [**Distributed Tracing**](concepts/DISTRIBUTED_TRACING.md): How visibility is maintained across layers.
-*   [**Pluggable Transports**](concepts/PLUGGABLE_TRANSPORTS.md): Decoupling the protocol from the physical network.
-*   [**Physical Holons**](concepts/PHYSICAL_HOLONS.md): Extending the grid into the material world.
+### Machine-Readable Schemas & APIs
+* [**OpenAPI 3.1 Definition**](api/openapi.yaml): Machine-readable HTTP API contract for orchestrators and registries (32 operations across 31 paths).
+* [**JSON Schemas**](schemas/): Draft 2020-12 schemas for all 19 core protocol and manifest data models.
+* [**Conformance Test Vectors**](conformance/test-vectors/): Byte-level test vectors for RFC 8785 canonicalization, task signing, and D-DNA.
 
-## Implementations
+---
 
-*   [**Avtomatika Engine**](https://github.com/avtomatika-ai/avtomatika): A production-ready Python implementation of the HLN Orchestrator.
-*   [**Worker SDK**](https://github.com/avtomatika-ai/avtomatika-worker): Python SDK for building HLN-compliant workers.
-*   [**RXON Protocol**](https://github.com/madgagarin/RXON): Lightweight reverse-connection (RXON) protocol for distributed systems. Supports universal resource telemetry (AI/Robotics/IoT) and strictly typed skill contracts. Works behind NAT/firewalls.
+## Reference Implementations
 
+The ecosystem consists of 5 modular reference packages:
+
+* [**rxon**](https://github.com/madgagarin/RXON): Core protocol serialization, types, schema validation (`is_schema_compatible`), cryptographic signing, and HTTP/WS transport bindings.
+* [**holoreg**](https://github.com/madgagarin/holoreg): Centralized OCI v1.1 CAS storage (`blobs/sha256/`) and relational Merkle DAG registry with SemVer Gate, Referrers API, and cluster leases.
+* [**holarchy-cli** (`hln` / `holarch`)](https://github.com/madgagarin/holarchy-cli): Developer CLI tool and client SDK featuring deterministic `.tar.zst` bundling, `hln.lock` resolution, and type stub generation.
+* [**holonode**](https://github.com/madgagarin/holonode): Dynamic worker runtime featuring `uv venv` sub-worker isolation over Unix Domain Sockets, CAS bundle mounting, exponential backoff with jitter, WRR multi-orchestrator polling, and live HUD telemetry.
+* [**holarchy**](https://github.com/madgagarin/holarchy): Production-grade control plane orchestrator featuring `TopologyManager`, compiled `graph.rxon.json` execution, FSM transitions, advisory deciders, Redis storage backends, and Zero-Trust verification.
+
+---
 
 ## Contributing
 
-We welcome feedback and proposals! Please see [**CONTRIBUTING.md**](CONTRIBUTING.md) for guidelines on how to propose changes to the architecture.
+We welcome contributions, RFC proposals, and feedback! Please review [**CONTRIBUTING.md**](CONTRIBUTING.md) and [**GOVERNANCE.md**](GOVERNANCE.md) for details on our specification revision process.
 
 ## License
 
-This specification is open-source and licensed under the **Creative Commons Attribution 4.0 International (CC BY 4.0)**.
+* Specification text and documentation are licensed under the [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE).
+* Machine-readable schemas, API definitions, test vectors, and sample code are licensed under the [Apache License, Version 2.0](LICENSE-CODE).

@@ -1,5 +1,8 @@
 # Reactive HLN: Worker-Initiated Events
 
+> [!NOTE]
+> This document is informative (non-normative). In case of conflict, normative specifications in `spec/` take precedence.
+
 > **"The muscle speaks. The brain listens. The signal climbs."**
 
 In its baseline form, HLN is *command-driven*: the Orchestrator pushes intent downward, and Holons report results upward. **Reactive HLN** completes the model by letting any Holon — most often an Atomic one close to the physical world — *initiate* a signal. The Holarchy becomes bidirectional: commands flow down, and meaningful signals bubble up until they reach a layer intelligent enough to act on them.
@@ -40,20 +43,23 @@ class WorkerEventPayload(NamedTuple):
     timestamp: int           # When the event was produced (Unix epoch)
 ```
 
-Two fields make the event trustworthy across an unbounded Holarchy:
+Two fields make the event trustworthy across a deep Holarchy:
 
-*   **`origin_worker_id`** never changes, so the *true* source is always identifiable even after the signal has bounced through several Compound Holons.
-*   **`bubbling_chain`** is the ordered list of Holon IDs the signal has passed through, and is cryptographically covered by the `SecurityContext`. It cannot be forged.
+*   **`origin_worker_id`** never changes, so the *true* source is always identifiable even after the signal has passed through intermediate Compound Holons.
+*   **`bubbling_chain`** is the ordered list of Holon IDs the signal has passed through. It is cryptographically secured via `provenance_chain` in `SecurityContext`: tamper-evident under Profile L2 using asymmetric Ed25519 signatures, and tamper-noticing under Profile L1 using chained HMAC.
 
 ---
 
 ## 3. Signaling and Bubbling
 
 ### Signaling
-When an event arrives at an Orchestrator, it is matched against the **active contexts** of the jobs that currently run there. If a running job is the intended target (or is logically responsible for the emitting worker), the event is *delivered* into that job's context — where a Blueprint handler can react to it, the same way it reacts to a task result.
+When an event arrives at an Orchestrator, it is matched deterministically against the **event routes** defined in the owning Blueprint using `target_job_id` or explicit `correlation_key` routing. If a running job is the intended target, the event is delivered into that job's context — where a Blueprint handler can react to it, the same way it reacts to a task result.
+
+> [!IMPORTANT]
+> **Protection against Reactive Loops**: If an event handler spawns a new sub-job in response to a signal, that sub-job **MUST NOT** reset `holarchy_depth = 0`. It **MUST** inherit `holarchy_depth + 1`, the originating job's `policy` (subject to monotonic attenuation), and a strictly sub-allocated portion of the parent's budget to prevent self-triggering infinite agent loops.
 
 ### Bubbling
-If the current Orchestrator has **no** active context that can handle the event, the event is not dropped — it *bubbles up* to the parent Orchestrator (the Compound Holon one level higher). The bubbling repeats recursively:
+If the current Orchestrator has **no** active context or route that can handle the event, the event is not dropped — it *bubbles up* to the parent Orchestrator (the Compound Holon one level higher), bounded by `bubbling_ttl` (default: 5 hops). The bubbling repeats:
 
 ```
 Atomic Holon → Compound Holon (Layer N) → ... → Apex
@@ -62,10 +68,10 @@ Atomic Holon → Compound Holon (Layer N) → ... → Apex
 At each hop:
 
 1. The forwarding Holon appends its own ID to `bubbling_chain`.
-2. The `SecurityContext` is re-signed so the extended chain remains verifiable.
-3. `trace_context` is preserved so the whole journey forms one trace.
+2. The intermediate hop appends its nested signature to `provenance_chain` (covering the previous hop's signature, timestamp, and payload hash) without overwriting upstream signatures, preventing truncation and reordering.
+3. `trace_context` is preserved so the whole journey forms one contiguous OpenTelemetry trace.
 
-Bubbling stops when an Orchestrator **finds a handler** for the event, or when the **Apex** is reached. The Apex has ultimate visibility into the entire tree of execution, so even an unhandled event is observable at the top.
+Bubbling stops when an Orchestrator **finds a matching handler**, or when the **Apex** is reached. The Apex has ultimate visibility into the entire tree of execution, so even an unhandled event is observable at the top.
 
 ---
 
@@ -122,7 +128,7 @@ Reactive does not mean uncontrolled. The same Zero Trust rules that govern comma
 
 ## 9. Related Documents
 
-- **HLN Specification**: `SPECIFICATION.md` (Section 5 — Observability, and Section 4 — Security & Integrity).
+- **HLN Specification**: `spec/SPECIFICATION.md` (Section 5 — Observability, and Section 4 — Security & Integrity).
 - **Distributed Tracing**: `concepts/DISTRIBUTED_TRACING.md`.
 - **Security Extensions**: `concepts/SECURITY_EXTENSIONS.md` (D-DNA and Identity Chain).
 

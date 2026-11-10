@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/madgagarin/HLN/main/schemas/worker_event.schema.json",
+  "title": "WorkerEventPayload",
+  "description": "Worker-initiated signal that may bubble up through the holarchy.",
+  "type": "object",
+  "required": ["event_id", "worker_id", "origin_worker_id", "event_type", "payload", "created_at", "envelope_ts", "nonce"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique event idempotency identifier (UUIDv7 recommended)."
+    },
+    "worker_id": {
+      "type": "string",
+      "description": "Identifier of the worker currently forwarding the signal."
+    },
+    "origin_worker_id": {
+      "type": "string",
+      "description": "Original source worker that generated the event."
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Signal classification (e.g. 'progress', 'alert', 'signal')."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Event business payload validated against Blueprint events_schema.",
+      "additionalProperties": true
+    },
+    "origin_task_id": {
+      "type": "string",
+      "description": "Task ID that gave rise to this event (if any)."
+    },
+    "bubbling_chain": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered path of worker IDs traversed."
+    },
+    "provenance_chain": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["hop_id", "ts", "sig"],
+        "properties": {
+          "hop_id": { "type": "string" },
+          "ts": { "type": "integer" },
+          "sig": { "type": "string" },
+          "prev_sig": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "description": "Append-only nested signature chain."
+    },
+    "bubbling_ttl": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 5,
+      "description": "Decrementing hop limit."
+    },
+    "target_job_id": {
+      "type": "string",
+      "description": "Specific job address."
+    },
+    "target_task_id": {
+      "type": "string",
+      "description": "Specific task address."
+    },
+    "trace_context": {
+      "type": "object",
+      "properties": {
+        "traceparent": { "type": "string" },
+        "tracestate": { "type": "string" }
+      },
+      "additionalProperties": true,
+      "description": "W3C Trace Context headers."
+    },
+    "priority": {
+      "type": "number",
+      "default": 0.0,
+      "description": "Urgency hint."
+    },
+    "created_at": {
+      "type": "integer",
+      "description": "Event generation timestamp at origin (Unix epoch ms)."
+    },
+    "envelope_ts": {
+      "type": "integer",
+      "description": "Packet dispatch timestamp (Unix epoch ms)."
+    },
+    "nonce": {
+      "type": "string",
+      "description": "Nonce for replay protection."
+    },
+    "security": {
+      "$ref": "security_context.schema.json"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}
